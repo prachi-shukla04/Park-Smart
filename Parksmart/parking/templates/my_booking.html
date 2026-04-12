@@ -1,0 +1,204 @@
+{% extends 'home.html' %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+
+<style>
+.wrapper{
+    width:90%;
+    max-width:900px;
+    margin:auto;
+}
+
+/* HEADER */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.header h2{
+    color:white;
+    margin:auto;
+}
+
+.back-btn{
+    background:white;
+    color:#333;
+    padding:6px 12px;
+    border-radius:6px;
+    text-decoration:none;
+}
+
+/* SECTION TITLE */
+.section-title{
+    color:white;
+    margin:20px 0 10px;
+    font-size:18px;
+}
+
+/* CARD */
+.card{
+    background:white;
+    padding:18px;
+    margin-bottom:15px;
+    border-radius:12px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+    border-left:4px solid #4b154d;
+}
+
+/* INFO */
+.info{
+    font-size:14px;
+    margin:4px 0;
+}
+
+/* PRICE */
+.price{
+    color:#27ae60;
+    font-weight:bold;
+}
+
+/* STATUS */
+.status{
+    font-size:12px;
+    padding:4px 8px;
+    border-radius:6px;
+    display:inline-block;
+    margin-top:5px;
+}
+
+.active{
+    background:#d4edda;
+    color:#155724;
+}
+
+.expired{
+    background:#f8d7da;
+    color:#721c24;
+}
+
+/* TIMER */
+.timer{
+    font-weight:bold;
+    color:#e67e22;
+}
+
+/* BUTTONS */
+.actions{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+.btn{
+    flex:1;
+    padding:8px;
+    border-radius:6px;
+    text-align:center;
+    text-decoration:none;
+    color:white;
+    font-size:13px;
+}
+
+.cancel{ background:#e74c3c; }
+.extend{ background:#27ae60; }
+.exit{ background:#f39c12; }
+
+/* EMPTY */
+.empty{
+    color:white;
+    text-align:center;
+}
+</style>
+
+<div class="wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+        <a href="{% url 'user_dashboard' %}" class="back-btn">⬅ Dashboard</a>
+        <h2>My Bookings</h2>
+    </div>
+
+    <!-- 🔥 ACTIVE BOOKINGS -->
+    <h3 class="section-title">🟢 Active Bookings</h3>
+
+    {% for b in active_bookings %}
+    <div class="card">
+
+        <h4>{{ b.parking.parking_name }}</h4>
+
+        <p class="info">📍 {{ b.parking.location }}</p>
+        <p class="info">🚘 {{ b.vehicle_type }} | {{ b.vehicle_number }}</p>
+        <p class="info">⏱ {{ b.hours }} hrs</p>
+        <p class="price">₹{{ b.total_price }}</p>
+
+        <p class="info timer">
+            ⏳ Time Left: <span id="timer-{{ b.id }}"></span>
+        </p>
+
+        <span class="status active">Active</span>
+
+        <div class="actions">
+            <a href="{% url 'cancel_booking' b.id %}" class="btn cancel">Cancel</a>
+            <a href="{% url 'extend_booking' b.id %}" class="btn extend">Extend</a>
+            <a href="{% url 'early_exit' b.id %}" class="btn exit">Exit</a>
+        </div>
+
+    </div>
+    {% empty %}
+        <p class="empty">No active bookings</p>
+    {% endfor %}
+
+    <!-- 🔴 COMPLETED BOOKINGS -->
+    <h3 class="section-title">🔴 Completed Bookings</h3>
+
+    {% for b in expired_bookings %}
+    <div class="card">
+
+        <h4>{{ b.parking.parking_name }}</h4>
+
+        <p class="info">📍 {{ b.parking.location }}</p>
+        <p class="info">🚘 {{ b.vehicle_type }} | {{ b.vehicle_number }}</p>
+        <p class="info">⏱ {{ b.hours }} hrs</p>
+        <p class="price">₹{{ b.total_price }}</p>
+
+        <span class="status expired">Completed</span>
+
+    </div>
+    {% empty %}
+        <p class="empty">No completed bookings</p>
+    {% endfor %}
+
+</div>
+
+<!-- TIMER SCRIPT -->
+<script>
+function startTimer(endTime, elementId){
+    function update(){
+        let now = new Date().getTime();
+        let end = new Date(endTime).getTime();
+        let diff = end - now;
+
+        if(diff <= 0){
+            document.getElementById(elementId).innerHTML = "Expired ⛔";
+            return;
+        }
+
+        let minutes = Math.floor(diff / 60000);
+        let seconds = Math.floor((diff % 60000) / 1000);
+
+        document.getElementById(elementId).innerHTML = minutes + "m " + seconds + "s";
+    }
+
+    setInterval(update, 1000);
+}
+
+{% for b in active_bookings %}
+startTimer("{{ b.end_time|date:'c' }}", "timer-{{ b.id }}");
+{% endfor %}
+</script>
+
+{% endblock %}

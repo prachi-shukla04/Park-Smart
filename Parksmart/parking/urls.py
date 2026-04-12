@@ -1,0 +1,36 @@
+from django.urls import path
+from . import views
+from django.conf import settings
+from django.conf.urls.static import static
+
+
+
+urlpatterns = [
+    path('', views.home, name='home'),
+
+    # Authentication
+    path('register/', views.register, name='register'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+
+    # Dashboards
+    path('provider/dashboard/', views.parking_provider, name='parking_provider'),
+    path('user/dashboard/', views.user_dashboard, name='user_dashboard'),
+
+    # Provider Features
+    path('add_parking/', views.add_parking, name='add_parking'),
+    path('my_parking/', views.my_parking, name='my_parking'),
+    path('edit_parking/<int:id>/', views.edit_parking, name='edit_parking'),
+    path('delete_parking/<int:id>/', views.delete_parking, name='delete_parking'),
+    path('provider/bookings/', views.provider_bookings, name='provider_bookings'),
+    path('provider/earnings/', views.provider_earnings, name='provider_earnings'),
+    # User Features
+    path('book-parking/<int:parking_id>/', views.book_parking, name='book_parking'),
+    path('my-bookings/', views.my_bookings, name='my_bookings'),
+    path('cancel-booking/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
+    path('view-slots/<int:parking_id>/', views.view_slots, name='view_slots'),
+    path('extend-booking/<int:booking_id>/', views.extend_booking, name='extend_booking'),
+    path('early-exit/<int:booking_id>/', views.early_exit, name='early_exit'),
+]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

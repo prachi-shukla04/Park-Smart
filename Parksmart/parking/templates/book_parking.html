@@ -1,0 +1,124 @@
+{% extends 'home.html' %}
+
+{% block title %}Book Parking{% endblock %}
+
+{% block content %}
+
+<style>
+.wrapper{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* FORM BOX */
+.form-box{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    width:360px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* TITLE */
+.form-box h2{
+    text-align:center;
+    margin-bottom:15px;
+}
+
+/* LABEL */
+label{
+    display:block;
+    margin-top:10px;
+    font-weight:500;
+}
+
+/* INPUT */
+select, input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+/* BUTTON */
+.btn{
+    margin-top:15px;
+    width:100%;
+    padding:10px;
+    background:#4b154d;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn:hover{
+    background:#6a1b9a;
+}
+
+/* BACK BUTTON */
+.back-btn{
+    display:block;
+    margin-top:10px;
+    text-align:center;
+    padding:10px;
+    background:#3498db;
+    color:white;
+    text-decoration:none;
+    border-radius:6px;
+}
+
+.back-btn:hover{
+    background:#2980b9;
+}
+
+/* PRICE */
+.price{
+    margin-top:10px;
+    font-weight:bold;
+    text-align:center;
+    color:#27ae60;
+}
+</style>
+
+<div class="wrapper">
+
+    <div class="form-box">
+        <h2>🚗 Book Slot</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <label>Vehicle Type</label>
+            <select name="vehicle_type" required>
+                <option value="">Select Vehicle</option>
+                <option value="Bike">Bike</option>
+                <option value="Car">Car</option>
+                <option value="SUV">SUV</option>
+                <option value="Truck">Truck</option>
+            </select>
+
+            <label>Vehicle Number</label>
+            <input type="text" name="vehicle_number" placeholder="UP32AB1234" required>
+
+            <label>Duration (hours)</label>
+            <input type="number" name="hours" min="1" required>
+
+            <!-- PRICE -->
+            <p class="price">💰 ₹{{ parking.price_per_hour }} / hour</p>
+
+            <button class="btn">Confirm Booking</button>
+        </form>
+
+        <a href="{% url 'user_dashboard' %}" class="back-btn">
+            ⬅ Back to Dashboard
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

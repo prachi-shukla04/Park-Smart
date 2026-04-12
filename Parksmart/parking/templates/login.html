@@ -1,0 +1,84 @@
+{% extends 'home.html' %}
+
+{% block title %}Login - Smart Park{% endblock %}
+
+{% block content %}
+
+<style>
+    .container{
+        width:380px;
+        margin:70px auto;
+        background:white;
+        padding:30px;
+        border-radius:10px;
+        box-shadow:0 0 15px rgba(0,0,0,0.1);
+        text-align:center;
+    }
+
+    h2{
+        margin-bottom:20px;
+        color:#4b154d;
+    }
+
+    input, select{
+        width:100%;
+        padding:10px;
+        margin:10px 0;
+        border:1px solid #ccc;
+        border-radius:5px;
+    }
+
+    button{
+        width:100%;
+        padding:12px;
+        background:#4b154d;
+        color:white;
+        border:none;
+        border-radius:5px;
+        font-size:16px;
+        cursor:pointer;
+    }
+
+    button:hover{
+        background:#6b1f6f;
+    }
+
+    .extra{
+        display:flex;
+        justify-content:space-between;
+        font-size:13px;
+        margin-top:10px;
+    }
+
+    .extra a{
+        text-decoration:none;
+        color:#4b154d;
+    }
+</style>
+
+<!-- Login Form -->
+<div class="container">
+    <h2>Smart Park Login</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <select name="role" required>
+            <option value="">Login As</option>
+            <option value="user">Parking User</option>
+            <option value="provider">Parking Provider</option>
+        </select>
+
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <div class="extra">
+        <a href="#">Forgot Password?</a>
+        <a href="/register">Register</a>
+    </div>
+</div>
+
+{% endblock %}

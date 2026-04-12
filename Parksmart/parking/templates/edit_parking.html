@@ -1,0 +1,159 @@
+{% extends 'home.html' %}
+
+{% block title %}Edit Parking{% endblock %}
+
+{% block content %}
+
+<style>
+.wrapper{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* FORM BOX */
+.form-box{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    width:420px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* TITLE */
+.form-box h2{
+    text-align:center;
+    margin-bottom:15px;
+}
+
+/* LABEL */
+label{
+    font-weight:bold;
+    font-size:14px;
+}
+
+/* INPUT */
+input{
+    width:100%;
+    padding:10px;
+    margin:6px 0 12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+/* IMAGE */
+img{
+    width:100%;
+    height:150px;
+    object-fit:cover;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+/* INFO TEXT */
+.info{
+    font-size:12px;
+    color:gray;
+    margin-bottom:10px;
+}
+
+/* BUTTON */
+.btn{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:none;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.update-btn{
+    background:#4b154d;
+}
+
+.update-btn:hover{
+    background:#6a1b9a;
+}
+
+/* BACK BUTTON */
+.back-btn{
+    background:#6c757d;
+    text-align:center;
+    display:block;
+    margin-top:10px;
+    padding:10px;
+    color:white;
+    border-radius:8px;
+    text-decoration:none;
+}
+
+.back-btn:hover{
+    background:#5a6268;
+}
+</style>
+
+<div class="wrapper">
+
+    <div class="form-box">
+        <h2>✏️ Edit Parking</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Current Image -->
+            {% if parking.image %}
+                <label>Current Image</label>
+                <img src="{{ parking.image.url }}">
+            {% endif %}
+
+            <!-- Update Image -->
+            <label>Change Image</label>
+            <input type="file" name="image">
+            <div class="info">Upload new image (optional)</div>
+
+            <!-- Name -->
+            <label>Parking Name</label>
+            <input type="text" name="parking_name" value="{{ parking.parking_name }}" required>
+
+            <!-- Location -->
+            <label>Location</label>
+            <input type="text" name="location" value="{{ parking.location }}" required>
+
+            <!-- Slots -->
+            <h3>Vehicle Slots & Pricing</h3>
+
+        <label>Bike Slots</label>
+        <input type="number" name="bike_slots" value="{{ parking.bike_slots }}">
+
+        <label>Bike Price</label>
+        <input type="number" name="bike_price" value="{{ parking.bike_price }}">
+
+        <label>Car Slots</label>
+        <input type="number" name="car_slots" value="{{ parking.car_slots }}">
+
+        <label>Car Price</label>
+        <input type="number" name="car_price" value="{{ parking.car_price }}">
+
+        <label>SUV Slots</label>
+        <input type="number" name="suv_slots" value="{{ parking.suv_slots }}">
+
+        <label>SUV Price</label>
+        <input type="number" name="suv_price" value="{{ parking.suv_price }}">
+
+        <label>Truck Slots</label>
+        <input type="number" name="truck_slots" value="{{ parking.truck_slots }}">
+
+        <label>Truck Price</label>
+        <input type="number" name="truck_price" value="{{ parking.truck_price }}">
+
+            <button type="submit" class="btn update-btn">Update Parking</button>
+        </form>
+
+        <a href="{% url 'my_parking' %}" class="back-btn">⬅ Back</a>
+    </div>
+
+</div>
+
+{% endblock %}

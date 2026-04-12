@@ -1,0 +1,297 @@
+{% extends 'home.html' %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+.wrapper{
+    width:90%;
+    max-width:1200px;
+    margin:auto;
+}
+
+.dashboard-header{
+    background: linear-gradient(135deg, #9358ff, #c52e2e);
+    padding: 25px 30px;
+    border-radius: 14px;
+    color: white;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 25px rgba(85, 0, 0, 0.64);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* LEFT TEXT */
+.dashboard-text h2{
+    margin-bottom: 5px;
+    font-size: 22px;
+}
+
+.dashboard-text p{
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* RIGHT ICON */
+.dashboard-icon{
+    font-size: 40px;
+    opacity: 0.8;
+}
+
+/* TOP BAR */
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.btn-top{
+    padding:8px 14px;
+    background:white;
+    color:#333;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.btn-top:hover{
+    background:#ddd;
+}
+.search-bar{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.search-bar input,
+.search-bar select{
+    padding:10px;
+    border-radius:6px;
+    border:none;
+    width:100%;
+}
+
+.search-bar button{
+    padding:10px 20px;
+    background:#4b154d;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.search-bar button:hover{
+    background:#6a1b9a;
+}
+/* GRID */
+.grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap:20px;
+}
+
+/* CARD */
+.card{
+    background:white;
+    border-radius:12px;
+    box-shadow:0 6px 15px rgba(0,0,0,0.1);
+    overflow:hidden;
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-6px);
+}
+
+/* IMAGE */
+.card img{
+    width:100%;
+    height:160px;
+    object-fit:cover;
+}
+
+/* BODY */
+.card-body{
+    padding:15px;
+}
+
+.card-body h4{
+    margin:5px 0;
+}
+
+/* INFO */
+.info{
+    font-size:14px;
+    margin:5px 0;
+}
+
+/* BUTTONS */
+.btn{
+    display:block;
+    margin-top:8px;
+    padding:10px;
+    text-align:center;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:14px;
+}
+
+.view-btn{
+    background:#3498db;
+    color:white;
+}
+
+.view-btn:hover{
+    background:#2980b9;
+}
+
+.book-btn{
+    background:#27ae60;
+    color:white;
+}
+
+.book-btn:hover{
+    background:#1e8449;
+}
+
+.disabled{
+    background:#bdc3c7;
+    color:#2c3e50;
+    cursor:not-allowed;
+}
+
+/* POPUP */
+.popup{
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:#27ae60;
+    color:white;
+    padding:15px 20px;
+    border-radius:8px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    z-index:1000;
+}
+</style>
+
+<div class="wrapper">
+
+    <!-- DASHBOARD HEADER -->
+    <div class="dashboard-header">
+
+    <div class="dashboard-text">
+        <h2>Welcome, {{ request.user.username }} 👋</h2>
+        <p>This is your Smart Parking dashboard. Book and manage your parking easily.</p>
+    </div>
+
+    <div class="dashboard-icon">
+        🚗
+    </div>
+
+</div>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <h3 style="color:white;">Available Parking Spaces</h3>
+
+        <a href="/my-bookings/" class="btn-top">My Bookings</a>
+    </div>
+
+    <!-- 🔍 SEARCH + FILTER BAR -->
+<form method="GET" class="search-bar">
+
+    <input type="text" name="q" placeholder="Search by location or name..." value="{{ request.GET.q }}">
+
+    <select name="vehicle">
+        <option value="">All Vehicles</option>
+        <option value="Bike">Bike</option>
+        <option value="Car">Car</option>
+        <option value="SUV">SUV</option>
+        <option value="Truck">Truck</option>
+    </select>
+
+    <button type="submit">Search</button>
+    <a href="{% url 'user_dashboard' %}" class="btn-top">Reset</a>
+
+</form>
+
+
+    <!-- GRID -->
+    <div class="grid">
+
+        {% for p in parkings %}
+        <div class="card">
+
+            {% if p.image %}
+                <img src="{{ p.image.url }}">
+            {% endif %}
+
+            <div class="card-body">
+                <h4>{{ p.parking_name }}</h4>
+
+                <p class="info">📍 {{ p.location }}</p>
+                 <div class="info">
+                    🛵 Bike: {{ p.available_bike_slots }} (₹{{ p.bike_price }})
+                </div>
+
+                <div class="info">
+                    🚗 Car: {{ p.available_car_slots }} (₹{{ p.car_price }})
+                </div>
+
+                <div class="info">
+                    🚙 SUV: {{ p.available_suv_slots }} (₹{{ p.suv_price }})
+                </div>
+
+                <div class="info">
+                    🚚 Truck: {{ p.available_truck_slots }} (₹{{ p.truck_price }})
+                </div>
+
+                <!-- VIEW -->
+                <a href="/view-slots/{{ p.id }}/" class="btn view-btn">View Slots</a>
+
+                <!-- BOOK BUTTON -->
+                {% if p.id in booked_parking_ids %}
+                    <a class="btn disabled">Slot Booked ✅</a>
+
+                {% else %}
+                    {% if p.available_bike_slots > 0 or p.available_car_slots > 0 or p.available_suv_slots > 0 or p.available_truck_slots > 0 %}
+                        <a href="/book-parking/{{ p.id }}/" class="btn book-btn">Book Now</a>
+                    {% else %}
+
+                        <a class="btn disabled">No Slots ❌</a>
+                    {% endif %}
+                {% endif %}
+
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<!-- POPUP -->
+{% if messages %}
+    {% for message in messages %}
+        <div id="popup" class="popup">{{ message }}</div>
+
+        <script>
+            setTimeout(() => {
+                document.getElementById("popup").style.display = "none";
+            }, 3000);
+        </script>
+    {% endfor %}
+{% endif %}
+
+<!-- AUTO REFRESH -->
+<script>
+    setInterval(() => {
+        location.reload();
+    }, 5000);
+</script>
+
+{% endblock %}

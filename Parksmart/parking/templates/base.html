@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Park</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        /* Header */
+        .header {
+            width: 100%;
+            background: #4b154d;
+            color: white;
+            padding: 15px;
+            font-size: 26px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Main Section */
+        .main-container {
+            display: flex;
+            height: 80vh;
+        }
+
+        /* Left Content */
+        .left {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .content-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+            width: 60%;
+        }
+
+        h1 {
+            color: #4b154d;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: gray;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 12px 25px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 120px;
+        }
+
+        .login-btn {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .register-btn {
+            background-color: #2ecc71;
+            color: black;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            transition: 0.3s;
+        }
+
+        /* Right Image */
+        .right {
+            width: 50%;
+            background-image: url("https://images.unsplash.com/photo-1506521781263-d8422e82f27a");
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            background: #4b154d;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            position: fixed;
+            bottom: 0;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        SMART PARK
+    </div>
+
+    <!-- Main Section -->
+    <div class="main-container">
+
+        <!-- Left Content -->
+        <div class="left">
+            <div class="content-box">
+                <h1>Welcome to Smart Parking System</h1>
+                <p>Find and Provide Parking Spaces Easily</p>
+
+                <a href="/login"><button class="login-btn">Login</button></a>
+                <a href="/register"><button class="register-btn">Register</button></a>
+            </div>
+        </div>
+
+        <!-- Right Image -->
+        <div class="right"></div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        © 2026 Smart Park | BCA Final Year Project
+    </div>
+
+</body>
+</html>

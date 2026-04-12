@@ -1,0 +1,162 @@
+{% extends 'home.html' %}
+
+{% block title %}View Slots{% endblock %}
+
+{% block content %}
+
+<style>
+.wrapper{
+    width:90%;
+    max-width:700px;
+    margin:auto;
+}
+
+/* HEADER */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.header h2{
+    color:white;
+    margin:auto;
+}
+
+.back{
+    background:white;
+    padding:6px 12px;
+    border-radius:6px;
+    text-decoration:none;
+    color:#333;
+}
+
+/* MAIN BOX */
+.box{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* VEHICLE CARD */
+.vehicle{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px;
+    margin:10px 0;
+    border-radius:10px;
+    background:#f8f9ff;
+    transition:0.3s;
+}
+
+.vehicle:hover{
+    background:#eef2ff;
+}
+
+/* INFO */
+.info{
+    font-size:14px;
+}
+
+/* BUTTON */
+.btn{
+    padding:6px 12px;
+    background:#4b154d;
+    color:white;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:13px;
+}
+
+.btn:hover{
+    background:#6a1b9a;
+}
+
+/* DISABLED */
+.disabled{
+    background:#ccc;
+    color:#666;
+    pointer-events:none;
+}
+</style>
+
+<div class="wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+        <a href="{% url 'user_dashboard' %}" class="back">⬅ Back</a>
+        <h2>{{ parking.parking_name }}</h2>
+    </div>
+
+    <div class="box">
+
+        <p class="info">📍 {{ parking.location }}</p>
+
+        <!-- BIKE -->
+        <div class="vehicle">
+            <div>
+                🛵 Bike <br>
+                Slots: {{ parking.available_bike_slots }} <br>
+                ₹{{ parking.bike_price }}/hr
+            </div>
+
+            {% if parking.available_bike_slots > 0 %}
+                <a href="{% url 'book_parking' parking.id %}?vehicle=Bike" class="btn">Book</a>
+            {% else %}
+                <span class="btn disabled">Full</span>
+            {% endif %}
+        </div>
+
+        <!-- CAR -->
+        <div class="vehicle">
+            <div>
+                🚗 Car <br>
+                Slots: {{ parking.available_car_slots }} <br>
+                ₹{{ parking.car_price }}/hr
+            </div>
+
+            {% if parking.available_car_slots > 0 %}
+                <a href="{% url 'book_parking' parking.id %}?vehicle=Car" class="btn">Book</a>
+            {% else %}
+                <span class="btn disabled">Full</span>
+            {% endif %}
+        </div>
+
+        <!-- SUV -->
+        <div class="vehicle">
+            <div>
+                🚙 SUV <br>
+                Slots: {{ parking.available_suv_slots }} <br>
+                ₹{{ parking.suv_price }}/hr
+            </div>
+
+            {% if parking.available_suv_slots > 0 %}
+                <a href="{% url 'book_parking' parking.id %}?vehicle=SUV" class="btn">Book</a>
+            {% else %}
+                <span class="btn disabled">Full</span>
+            {% endif %}
+        </div>
+
+        <!-- TRUCK -->
+        <div class="vehicle">
+            <div>
+                🚚 Truck <br>
+                Slots: {{ parking.available_truck_slots }} <br>
+                ₹{{ parking.truck_price }}/hr
+            </div>
+
+            {% if parking.available_truck_slots > 0 %}
+                <a href="{% url 'book_parking' parking.id %}?vehicle=Truck" class="btn">Book</a>
+            {% else %}
+                <span class="btn disabled">Full</span>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

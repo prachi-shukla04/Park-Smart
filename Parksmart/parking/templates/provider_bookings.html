@@ -1,0 +1,125 @@
+{% extends 'home.html' %}
+
+{% block title %}Booking Records{% endblock %}
+
+{% block content %}
+
+<style>
+.wrapper{
+    width:90%;
+    max-width:1100px;
+    margin:auto;
+}
+
+/* TITLE */
+h2{
+    text-align:center;
+    color:white;
+    margin-bottom:20px;
+}
+
+/* TOP BAR */
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+
+.btn{
+    padding:8px 15px;
+    background:white;
+    color:#333;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+/* TABLE CONTAINER */
+.table-box{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    overflow-x:auto;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#007bff;
+    color:white;
+    padding:12px;
+    text-align:left;
+}
+
+td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+}
+
+tr:hover{
+    background:#f1f1f1;
+}
+
+.price{
+    color:#28a745;
+    font-weight:bold;
+}
+
+.date{
+    font-size:12px;
+    color:gray;
+}
+
+.empty{
+    text-align:center;
+    padding:20px;
+    font-size:18px;
+    color:gray;
+}
+</style>
+
+<div class="wrapper">
+
+    <h2>📋 Booking Records</h2>
+
+    <div class="top-bar">
+        <a href="{% url 'parking_provider' %}" class="btn">⬅ Dashboard</a>
+        <a href="{% url 'provider_earnings' %}" class="btn">💰 Earnings</a>
+    </div>
+
+    <div class="table-box">
+
+        <table>
+            <tr>
+                <th>👤 User</th>
+                <th>🚗 Parking</th>
+                <th>⏱ Hours</th>
+                <th>💰 Price</th>
+                <th>📅 Date</th>
+            </tr>
+
+            {% for b in bookings %}
+            <tr>
+                <td>{{ b.user.username }}</td>
+                <td>{{ b.parking.parking_name }}</td>
+                <td>{{ b.hours }}</td>
+                <td class="price">₹{{ b.total_price }}</td>
+                <td class="date">{{ b.booking_time }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="empty">No bookings yet 🚫</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

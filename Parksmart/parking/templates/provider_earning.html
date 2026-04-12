@@ -1,0 +1,126 @@
+{% extends 'home.html' %}
+
+{% block title %}Earnings Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+.wrapper{
+    width:90%;
+    max-width:1100px;
+    margin:auto;
+}
+
+/* TITLE */
+h2{
+    text-align:center;
+    color:white;
+    margin-bottom:20px;
+}
+
+/* TOP BAR */
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+
+.btn{
+    padding:8px 15px;
+    background:white;
+    color:#333;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+/* SUMMARY */
+.summary{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
+    margin-bottom:30px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+.summary h3{
+    font-size:22px;
+    color:#28a745;
+}
+
+/* GRID */
+.container{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap:20px;
+}
+
+/* CARD */
+.card{
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.title{
+    font-weight:bold;
+    font-size:16px;
+    margin-bottom:8px;
+}
+
+.amount{
+    color:#28a745;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.date{
+    font-size:12px;
+    color:gray;
+}
+
+.empty{
+    text-align:center;
+    color:white;
+    font-size:18px;
+}
+</style>
+
+<div class="wrapper">
+
+    <h2>💰 Earnings Dashboard</h2>
+
+    <div class="top-bar">
+        <a href="{% url 'parking_provider' %}" class="btn">⬅ Dashboard</a>
+        <a href="{% url 'provider_bookings' %}" class="btn">📋 Bookings</a>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary">
+        <h4>Total Earnings</h4>
+        <h3>₹{{ total_earnings }}</h3>
+    </div>
+
+    <!-- CARDS -->
+    <div class="container">
+        {% for b in bookings %}
+        <div class="card">
+            <div class="title">🚗 {{ b.parking.parking_name }}</div>
+            <div class="amount">₹{{ b.total_price }}</div>
+            <div class="date">📅 {{ b.booking_time }}</div>
+        </div>
+        {% empty %}
+            <p class="empty">No earnings yet 💸</p>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

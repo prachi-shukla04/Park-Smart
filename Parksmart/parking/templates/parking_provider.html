@@ -1,0 +1,118 @@
+{% extends 'home.html' %}
+
+{% block title %}Provider Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+.main{
+    width:90%;
+    max-width:1200px;
+    margin:30px auto;
+}
+
+/* WELCOME BOX */
+.welcome{
+    background:#ffffff;
+    padding:25px;
+    border-radius:12px;
+    margin-bottom:25px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.15);
+}
+
+.welcome h2{
+    margin-bottom:8px;
+}
+
+.welcome p{
+    color:#666;
+    font-size:14px;
+}
+
+/* CARDS GRID */
+.cards{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+    gap:20px;
+}
+
+/* CARD STYLE */
+.card{
+    background:#ffffff;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.15);
+    transition:0.3s;
+    border-left:5px solid #4b154d;
+}
+
+.card:hover{
+    transform:translateY(-6px);
+}
+
+.card h3{
+    margin-bottom:10px;
+    color:#333;
+}
+
+.card p{
+    font-size:14px;
+    color:#777;
+    margin-bottom:15px;
+}
+
+/* BUTTON */
+.btn{
+    display:inline-block;
+    padding:10px 16px;
+    background:#4b154d;
+    color:#fff;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.btn:hover{
+    background:#6a1b9a;
+}
+</style>
+
+<div class="main">
+
+    <div class="welcome">
+        <h2>Welcome Back , Parking Manager👋</h2>
+        <p>Manage your parking system efficiently.</p>
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Add Parking</h3>
+            <p>Create new parking slots.</p>
+            <a href="{% url 'add_parking' %}" class="btn">Add</a>
+        </div>
+
+        <div class="card">
+            <h3>My Parking</h3>
+            <p>Manage your parking areas.</p>
+            <a href="{% url 'my_parking' %}" class="btn">View</a>
+        </div>
+
+        <div class="card">
+            <h3>Bookings</h3>
+            <p>Track all bookings.</p>
+            <a href="{% url 'provider_bookings' %}" class="btn">View</a>
+        </div>
+
+        <div class="card">
+            <h3>Earnings</h3>
+            <p>Monitor your revenue.</p>
+            <a href="{% url 'provider_earnings' %}" class="btn">View</a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
