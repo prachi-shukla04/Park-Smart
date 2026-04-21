@@ -1,159 +1,175 @@
 {% extends 'home.html' %}
-
 {% block title %}Edit Parking{% endblock %}
-
 {% block content %}
 
 <style>
-.wrapper{
-    width:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+.wrapper{ width:90%; max-width:650px; margin:auto; animation:fadeInUp 0.5s ease; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.edit-card {
+    background:#fff; padding:32px; border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.15);
 }
 
-/* FORM BOX */
-.form-box{
-    background:white;
-    padding:25px;
-    border-radius:15px;
-    width:420px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.3);
-}
+h2{ text-align:center; color:#222; font-size:22px; font-weight:700; margin-bottom:24px; }
+h3{ margin-top:24px; margin-bottom:12px; color:#444; font-size:16px; font-weight:600; }
 
-/* TITLE */
-.form-box h2{
-    text-align:center;
-    margin-bottom:15px;
-}
+label{ font-weight:600; display:block; margin-top:14px; margin-bottom:5px; color:#666; font-size:13px; }
 
-/* LABEL */
-label{
-    font-weight:bold;
-    font-size:14px;
-}
-
-/* INPUT */
 input{
-    width:100%;
-    padding:10px;
-    margin:6px 0 12px;
-    border-radius:8px;
-    border:1px solid #ccc;
+    width:100%; padding:12px 16px; border-radius:12px;
+    border:1px solid #e0e0e0; background:#f8f9fa; color:#333;
+    font-size:14px; outline:none; transition:all 0.3s;
+}
+input:focus { border-color:#667eea; background:#fff; box-shadow:0 0 0 3px rgba(102,126,234,0.1); }
+
+input[type="file"]::file-selector-button {
+    background:linear-gradient(135deg, #667eea, #764ba2);
+    color:white; border:none; padding:8px 16px;
+    border-radius:8px; cursor:pointer; font-weight:600;
 }
 
-/* IMAGE */
-img{
-    width:100%;
-    height:150px;
-    object-fit:cover;
-    border-radius:10px;
-    margin-bottom:10px;
+button{
+    width:100%; padding:14px; margin-top:18px;
+    background:linear-gradient(135deg, #667eea, #764ba2);
+    color:white; border:none; border-radius:12px;
+    font-weight:700; font-size:15px;
+    cursor:pointer; transition:0.3s;
+    box-shadow:0 8px 25px rgba(102,126,234,0.3);
 }
+button:hover{ transform:translateY(-2px); }
 
-/* INFO TEXT */
-.info{
-    font-size:12px;
-    color:gray;
-    margin-bottom:10px;
-}
-
-/* BUTTON */
-.btn{
-    width:100%;
-    padding:10px;
-    border-radius:8px;
-    border:none;
-    color:white;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-.update-btn{
-    background:#4b154d;
-}
-
-.update-btn:hover{
-    background:#6a1b9a;
-}
-
-/* BACK BUTTON */
 .back-btn{
-    background:#6c757d;
-    text-align:center;
-    display:block;
-    margin-top:10px;
-    padding:10px;
-    color:white;
-    border-radius:8px;
-    text-decoration:none;
+    display:block; text-align:center; margin-top:14px; padding:12px;
+    background:#f8f9fa; border:1px solid #e0e0e0;
+    border-radius:12px; text-decoration:none;
+    color:#666; font-weight:600;
+}
+.back-btn:hover{ background:#f0f0f0; }
+
+/* IMAGE SECTION */
+.existing-images{ margin:15px 0; padding:16px; background:#f8f9fa; border-radius:14px; }
+.image-gallery{ display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:10px; }
+.image-item{ position:relative; border-radius:12px; overflow:hidden; }
+.image-item img{ width:100%; height:100px; object-fit:cover; }
+
+.delete-btn{
+    position:absolute; top:6px; right:6px;
+    width:28px; height:28px;
+    background:#ff4b2b; color:white;
+    border:none; border-radius:50%;
+    cursor:pointer; font-size:14px;
 }
 
-.back-btn:hover{
-    background:#5a6268;
-}
+/* PREVIEW */
+.preview{ display:grid; grid-template-columns:repeat(auto-fill, minmax(80px, 1fr)); gap:10px; margin-top:10px; }
+.preview img{ width:100%; height:80px; object-fit:cover; border-radius:10px; }
+
+/* GRID */
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+.section-divider{ border:none; border-top:1px solid #eee; margin:20px 0; }
+
 </style>
 
 <div class="wrapper">
+<div class="edit-card">
 
-    <div class="form-box">
-        <h2>✏️ Edit Parking</h2>
+<h2>✏️ Edit Parking</h2>
 
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
 
-            <!-- Current Image -->
-            {% if parking.image %}
-                <label>Current Image</label>
-                <img src="{{ parking.image.url }}">
-            {% endif %}
+<!-- BASIC -->
+<label>Parking Name</label>
+<input type="text" name="parking_name" value="{{ parking.parking_name }}" required>
 
-            <!-- Update Image -->
-            <label>Change Image</label>
-            <input type="file" name="image">
-            <div class="info">Upload new image (optional)</div>
+<label>Location</label>
+<input type="text" name="location" value="{{ parking.location }}" required>
 
-            <!-- Name -->
-            <label>Parking Name</label>
-            <input type="text" name="parking_name" value="{{ parking.parking_name }}" required>
-
-            <!-- Location -->
-            <label>Location</label>
-            <input type="text" name="location" value="{{ parking.location }}" required>
-
-            <!-- Slots -->
-            <h3>Vehicle Slots & Pricing</h3>
-
-        <label>Bike Slots</label>
-        <input type="number" name="bike_slots" value="{{ parking.bike_slots }}">
-
-        <label>Bike Price</label>
-        <input type="number" name="bike_price" value="{{ parking.bike_price }}">
-
-        <label>Car Slots</label>
-        <input type="number" name="car_slots" value="{{ parking.car_slots }}">
-
-        <label>Car Price</label>
-        <input type="number" name="car_price" value="{{ parking.car_price }}">
-
-        <label>SUV Slots</label>
-        <input type="number" name="suv_slots" value="{{ parking.suv_slots }}">
-
-        <label>SUV Price</label>
-        <input type="number" name="suv_price" value="{{ parking.suv_price }}">
-
-        <label>Truck Slots</label>
-        <input type="number" name="truck_slots" value="{{ parking.truck_slots }}">
-
-        <label>Truck Price</label>
-        <input type="number" name="truck_price" value="{{ parking.truck_price }}">
-
-            <button type="submit" class="btn update-btn">Update Parking</button>
-        </form>
-
-        <a href="{% url 'my_parking' %}" class="back-btn">⬅ Back</a>
+<!-- IMAGES -->
+{% if parking.images.all %}
+<div class="existing-images">
+    <label><b>Current Images</b></label>
+    <div class="image-gallery">
+        {% for img in parking.images.all %}
+        <div class="image-item">
+            <img src="{{ img.image.url }}">
+            <a href="{% url 'delete_image' img.id %}" class="delete-btn">✕</a>
+        </div>
+        {% endfor %}
     </div>
+</div>
+{% endif %}
+
+<label>Add More Images</label>
+<input type="file" name="images" id="imageInput" multiple>
+<div id="preview" class="preview"></div>
+
+<hr class="section-divider">
+
+<!-- QR -->
+<h3>💳 Payment QR</h3>
+{% if parking.qr_code_image %}
+<img src="{{ parking.qr_code_image.url }}" style="width:120px;border-radius:10px;margin-bottom:10px;">
+{% endif %}
+<input type="file" name="qr_code_image" id="qrInput">
+<div id="qrPreview"></div>
+
+<!-- SLOTS -->
+<h3>🚗 Vehicle Slots & Pricing</h3>
+<div class="grid-2">
+    <input type="number" name="bike_slots" value="{{ parking.bike_slots }}" placeholder="Bike Slots">
+    <input type="number" name="bike_price" value="{{ parking.bike_price }}" placeholder="Bike ₹">
+
+    <input type="number" name="car_slots" value="{{ parking.car_slots }}" placeholder="Car Slots">
+    <input type="number" name="car_price" value="{{ parking.car_price }}" placeholder="Car ₹">
+
+    <input type="number" name="suv_slots" value="{{ parking.suv_slots }}" placeholder="SUV Slots">
+    <input type="number" name="suv_price" value="{{ parking.suv_price }}" placeholder="SUV ₹">
+
+    <input type="number" name="truck_slots" value="{{ parking.truck_slots }}" placeholder="Truck Slots">
+    <input type="number" name="truck_price" value="{{ parking.truck_price }}" placeholder="Truck ₹">
+</div>
+
+<button type="submit">💾 Update Parking</button>
+
+</form>
+
+<a href="{% url 'my_parking' %}" class="back-btn">← Back</a>
 
 </div>
+</div>
+
+<script>
+// IMAGE PREVIEW
+document.getElementById("imageInput").addEventListener("change", function(){
+    let p=document.getElementById("preview"); p.innerHTML="";
+    for(let file of this.files){
+        let r=new FileReader();
+        r.onload=e=>{
+            let img=document.createElement("img");
+            img.src=e.target.result;
+            p.appendChild(img);
+        };
+        r.readAsDataURL(file);
+    }
+});
+
+// QR PREVIEW
+document.getElementById("qrInput").addEventListener("change", function(){
+    let p=document.getElementById("qrPreview"); p.innerHTML="";
+    if(this.files[0]){
+        let r=new FileReader();
+        r.onload=e=>{
+            let img=document.createElement("img");
+            img.src=e.target.result;
+            img.style="width:120px;border-radius:10px;";
+            p.appendChild(img);
+        };
+        r.readAsDataURL(this.files[0]);
+    }
+});
+</script>
 
 {% endblock %}

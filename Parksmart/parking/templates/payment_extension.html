@@ -1,0 +1,97 @@
+{% extends 'home.html' %}
+{% block title %}Extend Booking{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+.payment-wrapper {
+    max-width:1100px; margin:20px auto; display:grid;
+    grid-template-columns:2fr 1fr; gap:24px; animation:fadeInUp 0.5s ease;
+}
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.card { background:#fff; padding:28px; border-radius:20px; box-shadow:0 8px 30px rgba(0,0,0,0.1); }
+.title { font-size:24px; font-weight:700; margin-bottom:24px; color:#222; }
+
+.section { margin-bottom:24px; }
+.section-title { font-weight:600; margin-bottom:10px; color:#999; font-size:13px; text-transform:uppercase; letter-spacing:0.5px; }
+.section p { color:#555; margin:6px 0; font-size:14px; }
+.section p i { margin-right:8px; color:#667eea; }
+
+.hours-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+.hour-btn {
+    padding:16px; border-radius:14px; border:2px solid #eee; background:#f8f9fa;
+    text-align:center; cursor:pointer; transition:all 0.3s; font-weight:600; color:#555; font-size:14px;
+}
+.hour-btn:hover { border-color:#667eea; background:#f0f2ff; }
+.hour-btn.active {
+    background:linear-gradient(135deg, #667eea, #764ba2); color:white; border:none;
+    box-shadow:0 6px 20px rgba(102,126,234,0.3); transform:scale(1.02);
+}
+
+.summary-box { background:#f8f9fa; border:1px solid #eee; padding:16px; border-radius:14px; margin-bottom:16px; color:#555; font-size:14px; }
+.summary-box strong { color:#333; }
+.summary-box i { color:#667eea; }
+
+.cost { font-size:36px; font-weight:800; color:#2ecc71; text-align:center; margin:24px 0; }
+
+.qr { text-align:center; margin-bottom:20px; }
+.qr img { width:160px; border-radius:14px; border:2px solid #667eea; padding:6px; background:white; }
+.qr p { color:#999; font-size:13px; margin-top:8px; }
+.qr p i { color:#667eea; }
+
+.btn {
+    width:100%; padding:16px; border-radius:14px;
+    background:linear-gradient(135deg, #43e97b, #38f9d7); color:#1a1a2e;
+    font-weight:700; font-size:15px; border:none; cursor:pointer;
+    transition:all 0.3s; font-family:'Inter',sans-serif;
+    box-shadow:0 8px 25px rgba(67,233,123,0.25);
+}
+.btn:hover { transform:translateY(-2px); box-shadow:0 12px 35px rgba(67,233,123,0.4); }
+
+@media(max-width:768px) { .payment-wrapper{grid-template-columns:1fr} .hours-grid{grid-template-columns:repeat(2, 1fr)} .title{font-size:20px} }
+</style>
+
+<div class="payment-wrapper">
+    <div class="card">
+        <div class="title">⏱ Extend Parking</div>
+        <div class="section">
+            <div class="section-title">Booking Info</div>
+            <p><i class="fa-solid fa-location-dot"></i> {{ booking.parking.parking_name }}</p>
+            <p><i class="fa-solid fa-car"></i> {{ booking.vehicle_type }}</p>
+            <p><i class="fa-solid fa-clock"></i> {{ booking.hours }} hrs current</p>
+        </div>
+        <div class="section">
+            <div class="section-title">Select Duration</div>
+            <div class="hours-grid">
+                <div class="hour-btn active" data-val="1">1 Hour</div>
+                <div class="hour-btn" data-val="2">2 Hours</div>
+                <div class="hour-btn" data-val="3">3 Hours</div>
+                <div class="hour-btn" data-val="4">4 Hours</div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <form method="post">{% csrf_token %}
+            <div class="summary-box"><strong><i class="fa-solid fa-receipt"></i> Payment Summary</strong><br>{{ booking.vehicle_type }} × <span id="hoursText">1</span> hr</div>
+            <div class="cost" id="costText">₹0</div>
+            <input type="hidden" name="extension_hours" id="hours" value="1">
+            {% if booking.parking.qr_code_image %}
+            <div class="qr"><img src="{{ booking.parking.qr_code_image.url }}"><p><i class="fa-solid fa-qrcode"></i> Scan & Pay</p></div>
+            {% endif %}
+            <button type="submit" class="btn" id="btn"><i class="fa-solid fa-credit-card"></i> Pay & Extend</button>
+        </form>
+    </div>
+</div>
+
+<script id="pricing-data" type="application/json">{"Bike":{{ booking.parking.bike_price|default:"0" }},"Car":{{ booking.parking.car_price|default:"0" }},"SUV":{{ booking.parking.suv_price|default:"0" }},"Truck":{{ booking.parking.truck_price|default:"0" }}}</script>
+<script>
+const pricing=JSON.parse(document.getElementById("pricing-data").textContent);
+const type="{{ booking.vehicle_type }}";
+function updateCost(h){ let t=(pricing[type]||0)*h; document.getElementById("costText").innerText="₹"+t; document.getElementById("hours").value=h; document.getElementById("hoursText").innerText=h; }
+document.querySelectorAll(".hour-btn").forEach(b=>{ b.addEventListener("click",function(){ document.querySelectorAll(".hour-btn").forEach(x=>x.classList.remove("active")); this.classList.add("active"); updateCost(parseInt(this.dataset.val)); }); });
+updateCost(1);
+document.querySelector("form").addEventListener("submit",function(){ const b=document.getElementById("btn"); b.innerHTML='<i class="fa fa-spinner fa-spin"></i> Processing...'; b.disabled=true; });
+</script>
+{% endblock %}

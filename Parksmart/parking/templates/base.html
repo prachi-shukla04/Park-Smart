@@ -1,101 +1,217 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Smart Park</title>
+    <title>Smart Park — Smart Parking System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: #f4f6f9;
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Inter',sans-serif;
         }
 
-        /* Header */
-        .header {
-            width: 100%;
-            background: #4b154d;
-            color: white;
-            padding: 15px;
-            font-size: 26px;
-            font-weight: bold;
-            text-align: center;
+        body{
+            min-height:100vh;
+            background: linear-gradient(135deg,#0f172a,#020617);
+            color:white;
+            overflow-x:hidden;
         }
 
-        /* Main Section */
-        .main-container {
-            display: flex;
-            height: 80vh;
+        /* BACKGROUND GLOW ANIMATION */
+        body::before{
+            content:"";
+            position:fixed;
+            width:600px;
+            height:600px;
+            background:radial-gradient(circle,#6366f1 0%, transparent 70%);
+            top:-100px;
+            left:-100px;
+            opacity:0.25;
+            animation:moveGlow 12s infinite alternate ease-in-out;
+            z-index:-1;
         }
 
-        /* Left Content */
-        .left {
-            width: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        @keyframes moveGlow{
+            0%{ transform:translate(0,0); }
+            100%{ transform:translate(200px,150px); }
         }
 
-        .content-box {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
-            text-align: center;
-            width: 60%;
+        /* HEADER */
+        .header{
+            height:70px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-bottom:1px solid #1e293b;
+            background:#020617;
         }
 
-        h1 {
-            color: #4b154d;
-            margin-bottom: 10px;
+        .header-brand{
+            font-size:22px;
+            font-weight:800;
+            display:flex;
+            gap:10px;
+            align-items:center;
         }
 
-        p {
-            color: gray;
-            margin-bottom: 30px;
+        .header-icon{
+            background:#6366f1;
+            padding:8px;
+            border-radius:10px;
         }
 
-        button {
-            padding: 12px 25px;
-            margin: 10px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 120px;
+        /* MAIN */
+        .main{
+            display:flex;
+            justify-content:center;
+            padding:60px 20px;
         }
 
-        .login-btn {
-            background-color: #3498db;
-            color: white;
+        .hero{
+            display:flex;
+            gap:60px;
+            max-width:1100px;
+            width:100%;
         }
 
-        .register-btn {
-            background-color: #2ecc71;
-            color: black;
+        /* LEFT */
+        .hero-left{
+            flex:1;
+            animation:fadeUp 0.8s ease;
         }
 
-        button:hover {
-            transform: scale(1.05);
-            transition: 0.3s;
+        @keyframes fadeUp{
+            from{ opacity:0; transform:translateY(30px); }
+            to{ opacity:1; transform:translateY(0); }
         }
 
-        /* Right Image */
-        .right {
-            width: 50%;
-            background-image: url("https://images.unsplash.com/photo-1506521781263-d8422e82f27a");
-            background-size: cover;
-            background-position: center;
+        .badge{
+            background:#1e293b;
+            padding:6px 14px;
+            border-radius:20px;
+            font-size:13px;
+            margin-bottom:20px;
+            color:#cbd5f5;
         }
 
-        /* Footer */
-        .footer {
-            width: 100%;
-            background: #4b154d;
-            color: white;
-            text-align: center;
-            padding: 12px;
-            position: fixed;
-            bottom: 0;
+        h1{
+            font-size:46px;
+            font-weight:800;
+            margin-bottom:15px;
+        }
+
+        h1 span{
+            color:#818cf8;
+        }
+
+        p{
+            color:#cbd5f5;
+            margin-bottom:30px;
+            line-height:1.6;
+        }
+
+        .buttons{
+            display:flex;
+            gap:15px;
+        }
+
+        .btn{
+            padding:14px 28px;
+            border-radius:10px;
+            text-decoration:none;
+            font-weight:700;
+            transition:0.3s;
+        }
+
+        .primary{
+            background:#6366f1;
+            color:white;
+        }
+
+        .primary:hover{
+            transform:translateY(-2px);
+            background:#4f46e5;
+        }
+
+        .secondary{
+            border:1px solid #334155;
+            color:#e2e8f0;
+        }
+
+        .secondary:hover{
+            background:#1e293b;
+        }
+
+        /* RIGHT FLOATING */
+        .hero-right{
+            flex:1;
+            position:relative;
+        }
+
+        .card{
+            position:absolute;
+            background:#1e293b;
+            padding:20px;
+            border-radius:16px;
+            width:220px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.5);
+            animation:float 6s infinite ease-in-out;
+        }
+
+        @keyframes float{
+            0%,100%{ transform:translateY(0); }
+            50%{ transform:translateY(-12px); }
+        }
+
+        .card:nth-child(1){
+            top:0;
+            right:0;
+        }
+
+        .card:nth-child(2){
+            bottom:0;
+            left:0;
+            animation-delay:2s;
+        }
+
+        .card:nth-child(3){
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+            animation-delay:4s;
+        }
+
+        .card-title{
+            font-size:12px;
+            color:#94a3b8;
+        }
+
+        .card-value{
+            font-size:22px;
+            font-weight:800;
+            margin-top:5px;
+        }
+
+        .green{ color:#22c55e; }
+
+        /* FOOTER */
+        .footer{
+            text-align:center;
+            padding:15px;
+            color:#94a3b8;
+            border-top:1px solid #1e293b;
+        }
+
+        @media(max-width:900px){
+            .hero{
+                flex-direction:column;
+                text-align:center;
+            }
+            .hero-right{ display:none; }
+            .buttons{ justify-content:center; }
         }
 
     </style>
@@ -103,34 +219,59 @@
 
 <body>
 
-    <!-- Header -->
-    <div class="header">
+<div class="header">
+    <div class="header-brand">
+        <div class="header-icon">🚗</div>
         SMART PARK
     </div>
+</div>
 
-    <!-- Main Section -->
-    <div class="main-container">
+<div class="main">
+    <div class="hero">
 
-        <!-- Left Content -->
-        <div class="left">
-            <div class="content-box">
-                <h1>Welcome to Smart Parking System</h1>
-                <p>Find and Provide Parking Spaces Easily</p>
+        <!-- LEFT -->
+        <div class="hero-left">
+            <div class="badge">Live Parking Availability</div>
 
-                <a href="/login"><button class="login-btn">Login</button></a>
-                <a href="/register"><button class="register-btn">Register</button></a>
+            <h1>Find Parking <br><span>Before You Arrive</span></h1>
+
+            <p>
+                Check real-time parking availability, compare prices, and reserve your spot in advance. 
+                Designed for daily commuters, event visitors, and parking owners.
+            </p>
+
+            <div class="buttons">
+                <a href="/login" class="btn primary">Login →</a>
+                <a href="/register" class="btn secondary">Create Account</a>
             </div>
         </div>
 
-        <!-- Right Image -->
-        <div class="right"></div>
+        <!-- RIGHT -->
+        <div class="hero-right">
+
+            <div class="card">
+                <div class="card-title">Nearby Available Slots</div>
+                <div class="card-value green">32 slots</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Average Parking Cost</div>
+                <div class="card-value">₹20 / hour</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Current Active Bookings</div>
+                <div class="card-value green">18 vehicles</div>
+            </div>
+
+        </div>
 
     </div>
+</div>
 
-    <!-- Footer -->
-    <div class="footer">
-        © 2026 Smart Park | BCA Final Year Project
-    </div>
+<div class="footer">
+    © 2026 Smart Park — Real-time Parking Management System
+</div>
 
 </body>
 </html>

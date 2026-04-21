@@ -22,6 +22,7 @@ urlpatterns = [
     path('my_parking/', views.my_parking, name='my_parking'),
     path('edit_parking/<int:id>/', views.edit_parking, name='edit_parking'),
     path('delete_parking/<int:id>/', views.delete_parking, name='delete_parking'),
+    path('delete_image/<int:image_id>/', views.delete_image, name='delete_image'),
     path('provider/bookings/', views.provider_bookings, name='provider_bookings'),
     path('provider/earnings/', views.provider_earnings, name='provider_earnings'),
     # User Features
@@ -31,6 +32,19 @@ urlpatterns = [
     path('view-slots/<int:parking_id>/', views.view_slots, name='view_slots'),
     path('extend-booking/<int:booking_id>/', views.extend_booking, name='extend_booking'),
     path('early-exit/<int:booking_id>/', views.early_exit, name='early_exit'),
+
+    # Favorites
+    path('add-favorite/<int:parking_id>/', views.add_favorite, name='add_favorite'),
+    path('remove-favorite/<int:parking_id>/', views.remove_favorite, name='remove_favorite'),
+
+    # Payment System
+    path('payment/qr/<int:booking_id>/', views.payment_qr, name='payment_qr'),
+    path('payment/extension/<int:booking_id>/', views.payment_extension, name='payment_extension'),
+    path('payment/success/<int:receipt_id>/', views.payment_success, name='payment_success'),
+
+    # Receipts
+    path('receipt/<int:receipt_id>/', views.download_receipt, name='download_receipt'),
+    path('receipt/generate/<int:booking_id>/', views.receipt_generation, name='receipt_generation'),    
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

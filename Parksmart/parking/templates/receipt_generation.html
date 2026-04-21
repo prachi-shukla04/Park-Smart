@@ -1,0 +1,55 @@
+{% extends 'home.html' %}
+{% block title %}Receipt - Smart Park{% endblock %}
+{% block content %}
+
+<style>
+.receipt-container { max-width:800px; margin:20px auto; animation:fadeInUp 0.5s ease; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.receipt-card { background:#fff; padding:32px; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.15); }
+.header { text-align:center; border-bottom:2px solid #f0f0f0; padding-bottom:20px; margin-bottom:24px; }
+.header h1 { margin:0; color:#222; font-size:24px; font-weight:800; }
+.receipt-number { font-size:15px; font-weight:600; color:#999; margin-top:6px; }
+
+h3 { margin-top:24px; color:#444; font-size:16px; border-left:4px solid #667eea; padding-left:12px; margin-bottom:14px; }
+
+table { width:100%; border-collapse:collapse; margin-top:8px; }
+th { background:#f8f9fa; text-align:left; padding:12px 14px; color:#666; font-size:13px; font-weight:600; }
+td { padding:12px 14px; border-bottom:1px solid #f0f0f0; color:#444; font-size:14px; }
+tr:hover { background:#fafafa; }
+.amount { color:#2ecc71; font-weight:700; }
+
+.footer { text-align:center; margin-top:28px; color:#999; font-size:14px; }
+.footer strong { color:#444; }
+
+.badge { padding:4px 12px; border-radius:8px; font-size:12px; font-weight:700; }
+.success { background:linear-gradient(135deg, #43e97b, #38f9d7); color:#1a1a2e; }
+</style>
+
+<div class="receipt-container">
+<div class="receipt-card">
+    <div class="header"><h1>🚗 Park Smart</h1><div class="receipt-number">Receipt #{{ receipt_number }}</div></div>
+    <h3>Booking Details</h3>
+    <table>
+        <tr><th>Booking Code</th><td>{{ booking.booking_code }}</td></tr>
+        <tr><th>User</th><td>{{ booking.user.get_full_name|default:booking.user.username }}</td></tr>
+        <tr><th>Parking</th><td>{{ booking.parking.parking_name }}</td></tr>
+        <tr><th>Location</th><td>{{ booking.parking.location }}</td></tr>
+        <tr><th>Vehicle Type</th><td>{{ booking.vehicle_type }}</td></tr>
+        <tr><th>Vehicle Number</th><td>{{ booking.vehicle_number }}</td></tr>
+        <tr><th>Hours</th><td>{{ booking.hours }}</td></tr>
+        <tr><th>Start Time</th><td>{{ booking.created_at }}</td></tr>
+        <tr><th>End Time</th><td>{{ booking.end_time }}</td></tr>
+    </table>
+    <h3>Payment Details</h3>
+    <table>
+        <tr><th>Transaction ID</th><td>{{ transaction.transaction_id }}</td></tr>
+        <tr><th>Payment Method</th><td>{{ transaction.payment_method }}</td></tr>
+        <tr><th>Amount Paid</th><td class="amount">₹{{ transaction.amount }}</td></tr>
+        <tr><th>Payment Date</th><td>{{ transaction.created_at }}</td></tr>
+        <tr><th>Status</th><td><span class="badge success">{{ transaction.status }}</span></td></tr>
+    </table>
+    <div class="footer">Thank you for using <strong>Park Smart</strong> 🚗<br>This receipt is valid proof of payment.</div>
+</div>
+</div>
+{% endblock %}

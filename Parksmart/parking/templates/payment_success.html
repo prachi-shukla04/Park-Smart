@@ -1,0 +1,51 @@
+{% extends 'home.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+.success-box {
+    max-width:520px; margin:40px auto; background:#fff; padding:48px 36px;
+    text-align:center; border-radius:24px; box-shadow:0 20px 60px rgba(0,0,0,0.15);
+    animation:bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes bounceIn { from{opacity:0;transform:scale(0.8) translateY(30px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+.success-icon { font-size:72px; margin-bottom:16px; animation:iconPop 0.5s 0.3s ease forwards; opacity:0; }
+@keyframes iconPop { from{opacity:0;transform:scale(0)} 50%{transform:scale(1.2)} to{opacity:1;transform:scale(1)} }
+.success-icon i { color:#2ecc71; }
+
+.success-title { font-size:26px; font-weight:800; margin-bottom:8px; color:#222; }
+.success-text { color:#999; margin-bottom:24px; font-size:15px; }
+
+.receipt-box { background:#f8f9fa; border:1px solid #eee; padding:18px; border-radius:16px; margin:24px 0; text-align:left; }
+.receipt-box p { margin:8px 0; color:#666; font-size:14px; }
+.receipt-box p strong { color:#333; }
+
+.btn { display:block; width:100%; padding:16px; border-radius:14px; margin-top:10px; text-decoration:none; font-weight:700; font-size:15px; transition:all 0.3s; text-align:center; }
+.btn-primary { background:linear-gradient(135deg, #667eea, #764ba2); color:white; box-shadow:0 8px 25px rgba(102,126,234,0.3); }
+.btn-secondary { background:#f8f9fa; border:1px solid #eee; color:#666; }
+.btn:hover { transform:translateY(-2px); }
+.btn-primary:hover { box-shadow:0 12px 35px rgba(102,126,234,0.45); }
+.btn-secondary:hover { background:#f0f0f0; }
+
+canvas { position:fixed; top:0; left:0; pointer-events:none; }
+.redirect-text { margin-top:16px; font-size:13px; color:#bbb; }
+</style>
+
+<div class="success-box">
+    <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+    <div class="success-title">Payment Successful 🎉</div>
+    <div class="success-text">Your parking has been extended successfully.</div>
+    <div class="receipt-box">
+        <p><strong>Receipt No:</strong> {{ receipt.receipt_number }}</p>
+        <p><strong>Amount Paid:</strong> <span style="color:#2ecc71;font-weight:700;">₹{{ receipt.total_amount }}</span></p>
+        <p><strong>Status:</strong> {{ receipt.payment_status }}</p>
+    </div>
+    <a href="{% url 'download_receipt' receipt.id %}" class="btn btn-primary"><i class="fa-solid fa-download"></i> Download Receipt</a>
+    <a href="{% url 'my_bookings' %}" class="btn btn-secondary"><i class="fa-solid fa-list"></i> Go to My Bookings</a>
+    <p class="redirect-text">Redirecting in 3 seconds...</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>confetti({particleCount:150,spread:70,origin:{y:0.6}});</script>
+{% endblock %}

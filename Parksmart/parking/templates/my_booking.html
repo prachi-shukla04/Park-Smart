@@ -1,204 +1,135 @@
 {% extends 'home.html' %}
-
 {% block title %}My Bookings{% endblock %}
-
 {% block content %}
 
 <style>
-.wrapper{
-    width:90%;
-    max-width:900px;
-    margin:auto;
+.wrapper { max-width:1100px; margin:auto; padding:20px; animation:fadeInUp 0.5s ease; }
+@keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.page-header h2 { color:#fff; font-size:22px; font-weight:700; }
+
+.back-btn {
+    background:#fff; padding:10px 20px; border-radius:12px; text-decoration:none;
+    color:#555; font-size:14px; font-weight:600; transition:all 0.3s;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+.back-btn:hover { background:#f5f5f5; transform:translateY(-1px); }
+
+.tabs { display:flex; gap:8px; margin-bottom:20px; }
+.tab {
+    padding:10px 22px; border-radius:12px; background:#fff; color:#888;
+    cursor:pointer; font-size:14px; font-weight:600; transition:all 0.3s;
+    box-shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+.tab:hover { color:#333; }
+.tab.active {
+    background:linear-gradient(135deg, #667eea, #764ba2); color:white;
+    box-shadow:0 4px 15px rgba(102,126,234,0.3);
 }
 
-/* HEADER */
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
-}
+.section { display:none; } .section.active { display:block; }
 
-.header h2{
-    color:white;
-    margin:auto;
+.card {
+    background:#fff; border-radius:16px; padding:24px; margin-bottom:16px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08); animation:cardSlide 0.4s ease forwards; opacity:0;
+    transition:all 0.3s;
 }
+.card:hover { box-shadow:0 8px 30px rgba(0,0,0,0.12); }
+@keyframes cardSlide { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.card:nth-child(1) { animation-delay:0.05s; } .card:nth-child(2) { animation-delay:0.1s; } .card:nth-child(3) { animation-delay:0.15s; }
 
-.back-btn{
-    background:white;
-    color:#333;
-    padding:6px 12px;
-    border-radius:6px;
-    text-decoration:none;
+.card h3 { color:#222; font-size:18px; margin-bottom:10px; }
+.info { font-size:14px; color:#888; margin:4px 0; }
+.price { font-size:22px; font-weight:700; color:#2ecc71; margin:8px 0; }
+
+.badge { display:inline-block; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:0.5px; }
+.badge.active-badge { background:linear-gradient(135deg, #43e97b, #38f9d7); color:#1a1a2e; }
+.badge.expired { background:#fff0f0; color:#e74c3c; border:1px solid #fdd; }
+
+.actions { display:flex; gap:10px; margin-top:16px; }
+.btn {
+    flex:1; padding:12px; border:none; border-radius:12px; color:white; cursor:pointer;
+    font-size:14px; font-weight:600; font-family:'Inter',sans-serif; transition:all 0.3s;
+    text-align:center; text-decoration:none;
 }
+.pay { background:linear-gradient(135deg, #667eea, #764ba2); box-shadow:0 4px 15px rgba(102,126,234,0.25); }
+.extend { background:linear-gradient(135deg, #43e97b, #38f9d7); color:#1a1a2e; box-shadow:0 4px 15px rgba(67,233,123,0.25); }
+.cancel { background:linear-gradient(135deg, #ff416c, #ff4b2b); box-shadow:0 4px 15px rgba(255,65,108,0.25); }
+.exit { background:linear-gradient(135deg, #f7971e, #ffd200); color:#1a1a2e; box-shadow:0 4px 15px rgba(247,151,30,0.25); }
+.btn:hover { transform:translateY(-2px); }
 
-/* SECTION TITLE */
-.section-title{
-    color:white;
-    margin:20px 0 10px;
-    font-size:18px;
-}
+.receipt-box { margin-top:12px; }
+.receipt-toggle { cursor:pointer; font-size:13px; color:#667eea; font-weight:600; }
+.receipt-toggle:hover { color:#5a6fd6; }
+.receipt-list { display:none; margin-top:8px; padding:10px; background:#f8f9fa; border-radius:10px; }
+.receipt-list a { display:block; margin-top:6px; color:#667eea; text-decoration:none; font-size:13px; }
+.receipt-list a:hover { color:#2ecc71; }
 
-/* CARD */
-.card{
-    background:white;
-    padding:18px;
-    margin-bottom:15px;
-    border-radius:12px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.12);
-    border-left:4px solid #4b154d;
-}
-
-/* INFO */
-.info{
-    font-size:14px;
-    margin:4px 0;
-}
-
-/* PRICE */
-.price{
-    color:#27ae60;
-    font-weight:bold;
-}
-
-/* STATUS */
-.status{
-    font-size:12px;
-    padding:4px 8px;
-    border-radius:6px;
-    display:inline-block;
-    margin-top:5px;
-}
-
-.active{
-    background:#d4edda;
-    color:#155724;
-}
-
-.expired{
-    background:#f8d7da;
-    color:#721c24;
-}
-
-/* TIMER */
-.timer{
-    font-weight:bold;
-    color:#e67e22;
-}
-
-/* BUTTONS */
-.actions{
-    display:flex;
-    gap:10px;
-    margin-top:10px;
-}
-
-.btn{
-    flex:1;
-    padding:8px;
-    border-radius:6px;
-    text-align:center;
-    text-decoration:none;
-    color:white;
-    font-size:13px;
-}
-
-.cancel{ background:#e74c3c; }
-.extend{ background:#27ae60; }
-.exit{ background:#f39c12; }
-
-/* EMPTY */
-.empty{
-    color:white;
-    text-align:center;
-}
+@media(max-width:768px){ .actions { flex-direction:column; } .page-header { flex-direction:column; gap:10px; } }
 </style>
 
 <div class="wrapper">
-
-    <!-- HEADER -->
-    <div class="header">
-        <a href="{% url 'user_dashboard' %}" class="back-btn">⬅ Dashboard</a>
-        <h2>My Bookings</h2>
-    </div>
-
-    <!-- 🔥 ACTIVE BOOKINGS -->
-    <h3 class="section-title">🟢 Active Bookings</h3>
-
-    {% for b in active_bookings %}
-    <div class="card">
-
-        <h4>{{ b.parking.parking_name }}</h4>
-
-        <p class="info">📍 {{ b.parking.location }}</p>
-        <p class="info">🚘 {{ b.vehicle_type }} | {{ b.vehicle_number }}</p>
-        <p class="info">⏱ {{ b.hours }} hrs</p>
-        <p class="price">₹{{ b.total_price }}</p>
-
-        <p class="info timer">
-            ⏳ Time Left: <span id="timer-{{ b.id }}"></span>
-        </p>
-
-        <span class="status active">Active</span>
-
-        <div class="actions">
-            <a href="{% url 'cancel_booking' b.id %}" class="btn cancel">Cancel</a>
-            <a href="{% url 'extend_booking' b.id %}" class="btn extend">Extend</a>
-            <a href="{% url 'early_exit' b.id %}" class="btn exit">Exit</a>
-        </div>
-
-    </div>
-    {% empty %}
-        <p class="empty">No active bookings</p>
-    {% endfor %}
-
-    <!-- 🔴 COMPLETED BOOKINGS -->
-    <h3 class="section-title">🔴 Completed Bookings</h3>
-
-    {% for b in expired_bookings %}
-    <div class="card">
-
-        <h4>{{ b.parking.parking_name }}</h4>
-
-        <p class="info">📍 {{ b.parking.location }}</p>
-        <p class="info">🚘 {{ b.vehicle_type }} | {{ b.vehicle_number }}</p>
-        <p class="info">⏱ {{ b.hours }} hrs</p>
-        <p class="price">₹{{ b.total_price }}</p>
-
-        <span class="status expired">Completed</span>
-
-    </div>
-    {% empty %}
-        <p class="empty">No completed bookings</p>
-    {% endfor %}
-
+<div class="page-header">
+    <a href="{% url 'user_dashboard' %}" class="back-btn">← Dashboard</a>
+    <h2>My Bookings</h2>
 </div>
 
-<!-- TIMER SCRIPT -->
-<script>
-function startTimer(endTime, elementId){
-    function update(){
-        let now = new Date().getTime();
-        let end = new Date(endTime).getTime();
-        let diff = end - now;
+<div class="tabs">
+    <div class="tab active" onclick="showTab('active')">🟢 Active</div>
+    <div class="tab" onclick="showTab('completed')">✅ Completed</div>
+</div>
 
-        if(diff <= 0){
-            document.getElementById(elementId).innerHTML = "Expired ⛔";
-            return;
-        }
-
-        let minutes = Math.floor(diff / 60000);
-        let seconds = Math.floor((diff % 60000) / 1000);
-
-        document.getElementById(elementId).innerHTML = minutes + "m " + seconds + "s";
-    }
-
-    setInterval(update, 1000);
-}
-
+<div id="active" class="section active">
 {% for b in active_bookings %}
-startTimer("{{ b.end_time|date:'c' }}", "timer-{{ b.id }}");
-{% endfor %}
-</script>
+<div class="card">
+    <h3>{{ b.parking.parking_name }}</h3>
+    <p class="info">📍 {{ b.parking.location }}</p>
+    <p class="info">🚘 {{ b.vehicle_type }} | {{ b.vehicle_number }}</p>
+    <p class="info">⏱ {{ b.hours }} hrs</p>
+    <p class="price">₹{{ b.total_price }}</p>
+    <span class="badge active-badge">Active</span>
 
+    <div class="receipt-box">
+        <span class="receipt-toggle" onclick="toggleReceipt(this)">📄 View Receipts</span>
+        <div class="receipt-list">
+            {% if b.receipts %}{% for r in b.receipts %}<a href="{% url 'download_receipt' r.id %}">⬇ Download {{ r.receipt_number }}</a>{% endfor %}
+            {% else %}<span style="color:#bbb; font-size:13px;">No receipt yet</span>{% endif %}
+        </div>
+    </div>
+
+    <div class="actions">
+        {% if b.payment.status == 'pending' %}<a href="{% url 'payment_qr' b.id %}" class="btn pay">💳 Pay</a>{% endif %}
+        <a href="{% url 'payment_extension' b.id %}" class="btn extend">⏱ Extend</a>
+        <form method="post" action="{% url 'cancel_booking' b.id %}" style="flex:1;display:flex;">{% csrf_token %}<button class="btn cancel" style="width:100%">✕ Cancel</button></form>
+        <button class="btn exit">🚪 Exit</button>
+    </div>
+</div>
+{% empty %}<p style="color:#999; text-align:center; padding:40px; background:#fff; border-radius:16px;">No active bookings</p>{% endfor %}
+</div>
+
+<div id="completed" class="section">
+{% for b in expired_bookings %}
+<div class="card">
+    <h3>{{ b.parking.parking_name }}</h3>
+    <p class="price">₹{{ b.total_price }}</p>
+    <span class="badge expired">Completed</span>
+    <div class="receipt-box">
+        <span class="receipt-toggle" onclick="toggleReceipt(this)">📄 View Receipts</span>
+        <div class="receipt-list">{% for r in b.receipts %}<a href="{% url 'download_receipt' r.id %}">⬇ Download {{ r.receipt_number }}</a>{% endfor %}</div>
+    </div>
+</div>
+{% empty %}<p style="color:#999; text-align:center; padding:40px; background:#fff; border-radius:16px;">No completed bookings</p>{% endfor %}
+</div>
+</div>
+
+<script>
+function showTab(tab){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.querySelector(`[onclick="showTab('${tab}')"]`).classList.add('active');
+    document.getElementById(tab).classList.add('active');
+}
+function toggleReceipt(el){ const l=el.nextElementSibling; l.style.display=l.style.display==='block'?'none':'block'; }
+</script>
 {% endblock %}

@@ -1,124 +1,137 @@
 {% extends 'home.html' %}
-
 {% block title %}Book Parking{% endblock %}
-
 {% block content %}
 
 <style>
-.wrapper{
-    width:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
+.wrapper{ display:flex; justify-content:center; align-items:center; animation: fadeInUp 0.5s ease; }
 
-/* FORM BOX */
+@keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
 .form-box{
-    background:white;
-    padding:25px;
-    border-radius:12px;
-    width:360px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+    background: #fff;
+    padding: 32px;
+    border-radius: 20px;
+    width: 450px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 }
 
-/* TITLE */
-.form-box h2{
-    text-align:center;
-    margin-bottom:15px;
-}
+h2{ text-align:center; color:#222; font-size:22px; font-weight:700; margin-bottom:24px; }
 
-/* LABEL */
-label{
-    display:block;
-    margin-top:10px;
-    font-weight:500;
-}
+.vehicle-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
 
-/* INPUT */
-select, input{
-    width:100%;
-    padding:10px;
-    margin-top:5px;
-    border-radius:6px;
-    border:1px solid #ccc;
+.vehicle-card{
+    padding:16px; border-radius:14px; background:#f8f9fa;
+    border:2px solid #eee; text-align:center; cursor:pointer;
+    transition:all 0.3s ease; color:#555;
 }
+.vehicle-card:hover{ border-color:#667eea; background:#f0f2ff; }
+.vehicle-card.active{
+    background:linear-gradient(135deg, #667eea, #764ba2);
+    color:white; border-color:transparent;
+    box-shadow:0 8px 25px rgba(102,126,234,0.3); transform:scale(1.02);
+}
+.vehicle-card h3 { font-size:24px; margin-bottom:4px; }
+.vehicle-card p { font-size:13px; margin:2px 0; }
+.vehicle-card.full{ background:#f5f5f5; color:#ccc; cursor:not-allowed; border-color:transparent; }
 
-/* BUTTON */
+label { display:block; color:#666; font-size:13px; font-weight:600; margin-top:14px; margin-bottom:4px; }
+
+input{
+    width:100%; padding:14px 16px; margin-top:4px; border-radius:12px;
+    border:1px solid #e0e0e0; background:#f8f9fa; color:#333;
+    font-size:14px; font-family:'Inter',sans-serif; outline:none; transition:all 0.3s;
+}
+input::placeholder { color:#aaa; }
+input:focus { border-color:#667eea; background:#fff; box-shadow:0 0 0 3px rgba(102,126,234,0.1); }
+
 .btn{
-    margin-top:15px;
-    width:100%;
-    padding:10px;
-    background:#4b154d;
-    color:white;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    transition:0.3s;
+    margin-top:20px; width:100%; padding:14px;
+    background:linear-gradient(135deg, #667eea, #764ba2);
+    color:white; border:none; border-radius:12px; font-size:15px;
+    font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;
+    transition:all 0.3s; box-shadow:0 8px 25px rgba(102,126,234,0.3);
 }
+.btn:hover { transform:translateY(-2px); box-shadow:0 12px 35px rgba(102,126,234,0.45); }
 
-.btn:hover{
-    background:#6a1b9a;
-}
-
-/* BACK BUTTON */
-.back-btn{
-    display:block;
-    margin-top:10px;
-    text-align:center;
-    padding:10px;
-    background:#3498db;
-    color:white;
-    text-decoration:none;
-    border-radius:6px;
-}
-
-.back-btn:hover{
-    background:#2980b9;
-}
-
-/* PRICE */
 .price{
-    margin-top:10px;
-    font-weight:bold;
-    text-align:center;
-    color:#27ae60;
+    margin-top:16px; font-weight:700; text-align:center;
+    font-size:22px; color:#2ecc71;
 }
+
+.payment-timing{ display:flex; gap:10px; margin-top:6px; }
+.payment-timing label{
+    flex:1; padding:12px; border:1px solid #e0e0e0; border-radius:12px;
+    text-align:center; cursor:pointer; color:#666; font-size:14px; margin:0;
+    transition:all 0.3s; background:#f8f9fa;
+}
+.payment-timing label:has(input:checked) {
+    border-color:#667eea; background:#f0f2ff; color:#333;
+}
+.payment-timing input[type="radio"] { width:auto; margin-right:6px; accent-color:#667eea; }
 </style>
 
 <div class="wrapper">
-
-    <div class="form-box">
-        <h2>🚗 Book Slot</h2>
-
-        <form method="POST">
-            {% csrf_token %}
-
-            <label>Vehicle Type</label>
-            <select name="vehicle_type" required>
-                <option value="">Select Vehicle</option>
-                <option value="Bike">Bike</option>
-                <option value="Car">Car</option>
-                <option value="SUV">SUV</option>
-                <option value="Truck">Truck</option>
-            </select>
-
-            <label>Vehicle Number</label>
-            <input type="text" name="vehicle_number" placeholder="UP32AB1234" required>
-
-            <label>Duration (hours)</label>
-            <input type="number" name="hours" min="1" required>
-
-            <!-- PRICE -->
-            <p class="price">💰 ₹{{ parking.price_per_hour }} / hour</p>
-
-            <button class="btn">Confirm Booking</button>
-        </form>
-
-        <a href="{% url 'user_dashboard' %}" class="back-btn">
-            ⬅ Back to Dashboard
-        </a>
-    </div>
-
+<div class="form-box">
+<h2>🚗 Book Your Slot</h2>
+<form method="POST">
+{% csrf_token %}
+<div class="vehicle-grid">
+<div class="vehicle-card {% if parking.available_bike_slots == 0 %}full{% endif %}" onclick="selectVehicle('Bike', {{ parking.available_bike_slots }})">
+<h3>🏍</h3><p>Bike</p><p>₹{{ parking.bike_price }}/hr</p>
+<span style="font-size:12px; opacity:0.6">{{ parking.available_bike_slots }} slots</span>
+</div>
+<div class="vehicle-card {% if parking.available_car_slots == 0 %}full{% endif %}" onclick="selectVehicle('Car', {{ parking.available_car_slots }})">
+<h3>🚗</h3><p>Car</p><p>₹{{ parking.car_price }}/hr</p>
+<span style="font-size:12px; opacity:0.6">{{ parking.available_car_slots }} slots</span>
+</div>
+<div class="vehicle-card {% if parking.available_suv_slots == 0 %}full{% endif %}" onclick="selectVehicle('SUV', {{ parking.available_suv_slots }})">
+<h3>🚙</h3><p>SUV</p><p>₹{{ parking.suv_price }}/hr</p>
+<span style="font-size:12px; opacity:0.6">{{ parking.available_suv_slots }} slots</span>
+</div>
+<div class="vehicle-card {% if parking.available_truck_slots == 0 %}full{% endif %}" onclick="selectVehicle('Truck', {{ parking.available_truck_slots }})">
+<h3>🚚</h3><p>Truck</p><p>₹{{ parking.truck_price }}/hr</p>
+<span style="font-size:12px; opacity:0.6">{{ parking.available_truck_slots }} slots</span>
+</div>
 </div>
 
+<input type="hidden" name="vehicle_type" id="vehicleType">
+<label>Vehicle Number</label>
+<input type="text" name="vehicle_number" placeholder="e.g. UP32 AB 1234" required>
+<label>Duration (hours)</label>
+<input type="number" name="hours" id="hours" min="1" value="1">
+<p class="price" id="priceDisplay">Total: ₹0</p>
+
+<label style="margin-top:16px">💳 Payment Method</label>
+<div class="payment-timing">
+<label><input type="radio" name="payment_timing" value="pay_now" checked> Pay Now</label>
+<label><input type="radio" name="payment_timing" value="pay_at_end"> Pay Later</label>
+</div>
+<button class="btn">Confirm Booking →</button>
+</form>
+</div>
+</div>
+
+<script>
+let selectedVehicle = null;
+const pricing = { Bike:{{ parking.bike_price }}, Car:{{ parking.car_price }}, SUV:{{ parking.suv_price }}, Truck:{{ parking.truck_price }} };
+
+function selectVehicle(type, slots){
+    if(slots <= 0){ alert("No slots available ❌"); return; }
+    selectedVehicle = type;
+    document.getElementById("vehicleType").value = type;
+    document.querySelectorAll(".vehicle-card").forEach(c=>c.classList.remove("active"));
+    event.currentTarget.classList.add("active");
+    updatePrice();
+}
+document.getElementById("hours").addEventListener("input", updatePrice);
+function updatePrice(){
+    let hours = document.getElementById("hours").value;
+    if(selectedVehicle && hours){
+        document.getElementById("priceDisplay").innerText = "Total: ₹" + (pricing[selectedVehicle] * hours);
+    }
+}
+document.querySelector("form").addEventListener("submit", function(e){
+    if(!selectedVehicle){ e.preventDefault(); alert("Please select a vehicle type 🚗"); }
+});
+</script>
 {% endblock %}
