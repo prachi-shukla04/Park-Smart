@@ -25,6 +25,8 @@ urlpatterns = [
     path('delete_image/<int:image_id>/', views.delete_image, name='delete_image'),
     path('provider/bookings/', views.provider_bookings, name='provider_bookings'),
     path('provider/earnings/', views.provider_earnings, name='provider_earnings'),
+    path('provider/mark-exit/<int:booking_id>/', views.mark_vehicle_exit, name='mark_vehicle_exit'),
+    path('provider/scan-qr/<int:booking_id>/', views.scan_qr, name='scan_qr'),
     # User Features
     path('book-parking/<int:parking_id>/', views.book_parking, name='book_parking'),
     path('my-bookings/', views.my_bookings, name='my_bookings'),
@@ -32,14 +34,18 @@ urlpatterns = [
     path('view-slots/<int:parking_id>/', views.view_slots, name='view_slots'),
     path('extend-booking/<int:booking_id>/', views.extend_booking, name='extend_booking'),
     path('early-exit/<int:booking_id>/', views.early_exit, name='early_exit'),
+    path('submit-rating/<int:booking_id>/', views.submit_rating, name='submit_rating'),
 
     # Favorites
     path('add-favorite/<int:parking_id>/', views.add_favorite, name='add_favorite'),
     path('remove-favorite/<int:parking_id>/', views.remove_favorite, name='remove_favorite'),
 
-    # Payment System
+    # Payment System (Razorpay)
     path('payment/qr/<int:booking_id>/', views.payment_qr, name='payment_qr'),
+    path('payment/verify/<int:booking_id>/', views.verify_payment, name='verify_payment'),
+    path('payment/failed/<int:booking_id>/', views.payment_failed, name='payment_failed'),
     path('payment/extension/<int:booking_id>/', views.payment_extension, name='payment_extension'),
+    path('payment/verify-extension/<int:booking_id>/', views.verify_extension, name='verify_extension'),
     path('payment/success/<int:receipt_id>/', views.payment_success, name='payment_success'),
 
     # Receipts

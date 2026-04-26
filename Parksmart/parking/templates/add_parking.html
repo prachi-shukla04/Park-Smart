@@ -5,117 +5,276 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <style>
-.add-container { width:95%; max-width:720px; margin:auto; animation:fadeInUp 0.5s ease; }
-@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    /* CONTAINER */
+    .add-container {
+        max-width: 760px;
+        margin: auto;
+        padding: 20px;
+    }
 
-.add-card {
-    background:#fff; padding:32px; border-radius:20px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.15);
-}
+    /* 🔥 TOP NAV BAR */
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 10px 14px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
 
-.add-card .card-header h2 { text-align:center; margin-bottom:24px; color:#222; font-size:22px; font-weight:700; }
+    .back-btn {
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        color: #475569;
+        padding: 8px 14px;
+        border-radius: 10px;
+        background: #f1f5f9;
+        transition: 0.3s;
+    }
 
-.add-card input {
-    width:100%; padding:14px 16px; border-radius:12px; border:1px solid #e0e0e0;
-    margin-bottom:12px; background:#f8f9fa; color:#333; font-size:14px;
-    font-family:'Inter',sans-serif; outline:none; transition:all 0.3s;
-}
-.add-card input::placeholder { color:#aaa; }
-.add-card input:focus { border-color:#667eea; background:#fff; box-shadow:0 0 0 3px rgba(102,126,234,0.1); }
+    .back-btn:hover {
+        background: #e2e8f0;
+        transform: translateX(-2px);
+    }
 
-.add-card input[type="file"]::file-selector-button {
-    background:linear-gradient(135deg, #667eea, #764ba2); color:white; border:none;
-    padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; margin-right:10px;
-}
+    .page-title {
+        font-weight: 700;
+        font-size: 14px;
+        color: #1e293b;
+    }
 
-.add-card h4 { color:#444; font-size:15px; font-weight:600; margin-top:20px; margin-bottom:10px; }
-.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .dashboard-btn {
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 10px;
+        background: #6366f1;
+        transition: 0.3s;
+    }
 
-.add-card button {
-    width:100%; padding:14px; border:none; border-radius:12px;
-    background:linear-gradient(135deg, #667eea, #764ba2); color:white;
-    font-weight:700; font-size:15px; cursor:pointer; font-family:'Inter',sans-serif;
-    transition:all 0.3s; box-shadow:0 8px 25px rgba(102,126,234,0.3); margin-top:8px;
-}
-.add-card button:hover { transform:translateY(-2px); box-shadow:0 12px 35px rgba(102,126,234,0.45); }
+    .dashboard-btn:hover {
+        background: #4f46e5;
+        transform: translateX(2px);
+    }
 
-.map-btn {
-    background:#f8f9fa !important; border:1px solid #e0e0e0 !important;
-    color:#555 !important; box-shadow:none !important; margin-bottom:12px;
-}
-.map-btn:hover { background:#f0f0f0 !important; transform:none !important; }
+    /* CARD */
+    .add-card {
+        background: #fff;
+        padding: 30px;
+        border-radius: 18px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+    }
 
-.preview { background:#f8f9fa; border:1px solid #eee; padding:12px; border-radius:12px; font-size:13px; color:#999; margin-bottom:12px; }
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 800;
+    }
 
-.back-btn {
-    display:inline-flex; align-items:center; gap:6px; padding:10px 18px;
-    background:#fff; border-radius:12px; margin-bottom:20px; text-decoration:none;
-    color:#555; font-size:14px; font-weight:600; transition:all 0.3s; box-shadow:0 2px 10px rgba(0,0,0,0.06);
-}
-.back-btn:hover { background:#f5f5f5; }
+    /* INPUT */
+    .form-group {
+        margin-bottom: 18px;
+    }
 
-/* ================= FULLSCREEN MAP ================= */
-#mapModal { display:none; position:fixed; inset:0; background:#fff; z-index:9999; flex-direction:column; }
-#mapModal.open { display:flex; }
+    input {
+        width: 100%;
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+    }
 
-.map-header {
-    width:100%; height:64px; min-height:64px; background:white; display:flex;
-    gap:10px; align-items:center; padding:0 14px; box-shadow:0 2px 8px rgba(0,0,0,0.12); z-index:1001;
-}
-.map-header input {
-    flex:1; margin:0; height:40px; border-radius:8px; border:1px solid #dadce0 !important;
-    padding:0 14px; font-size:14px; background:#f1f3f4 !important; color:#333 !important;
-}
-.map-header input:focus { background:#fff !important; border-color:#4285f4 !important; box-shadow:0 0 0 2px rgba(66,133,244,0.2) !important; }
-.map-header button { width:auto; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; min-width:70px; box-shadow:none !important; }
-.map-header .search-btn { background:#1a73e8 !important; color:white !important; }
-.map-header .close-btn { background:#f1f3f4 !important; color:#3c4043 !important; min-width:40px; width:40px; padding:8px; font-size:18px; }
+    input:focus {
+        border-color: #6366f1;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+    }
 
-#map { flex:1; width:100%; min-height:0; }
+    small {
+        font-size: 12px;
+        color: #888;
+    }
 
-.map-hint {
-    position:absolute; bottom:24px; left:50%; transform:translateX(-50%); z-index:1001;
-    background:rgba(32,33,36,0.85); color:white; padding:10px 20px; border-radius:24px;
-    font-size:13px; font-weight:500; pointer-events:none; animation:hintFade 4s ease forwards;
-}
-@keyframes hintFade { 0%,70%{opacity:1} 100%{opacity:0} }
+    /* SECTION */
+    .section {
+        margin-top: 25px;
+        padding: 18px;
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .section h4 {
+        margin-bottom: 12px;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    /* BUTTON */
+    button {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        background: #6366f1;
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #4f46e5;
+    }
+
+    .map-btn {
+        background: #e2e8f0;
+        color: #333;
+        margin-top: 10px;
+    }
+
+    /* PREVIEW */
+    .preview {
+        background: #eef2ff;
+        padding: 10px;
+        border-radius: 10px;
+        margin-top: 10px;
+        font-size: 13px;
+    }
+
+    /* ERROR */
+    .error {
+        color: red;
+        font-size: 12px;
+        display: none;
+    }
+
+    /* ================= FULLSCREEN MAP ================= */
+    #mapModal { display:none; position:fixed; inset:0; background:#fff; z-index:9999; flex-direction:column; }
+    #mapModal.open { display:flex; }
+
+    .map-header {
+        width:100%; height:64px; min-height:64px; background:white; display:flex;
+        gap:10px; align-items:center; padding:0 14px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.12); z-index:1001;
+    }
+    .map-header input {
+        flex:1; margin:0; height:40px; border-radius:8px; border:1px solid #dadce0 !important;
+        padding:0 14px; font-size:14px; background:#f1f3f4 !important; color:#333 !important;
+    }
+    .map-header input:focus { background:#fff !important; border-color:#4285f4 !important; box-shadow:0 0 0 2px rgba(66,133,244,0.2) !important; }
+    .map-header button {
+        width:auto; padding:8px 16px; border-radius:8px; font-size:13px;
+        font-weight:600; min-width:70px; box-shadow:none !important;
+    }
+    .map-header .search-btn { background:#1a73e8 !important; color:white !important; }
+    .map-header .close-btn { background:#f1f3f4 !important; color:#3c4043 !important; min-width:40px; width:40px; padding:8px; font-size:18px; }
+
+    #map { flex:1; width:100%; min-height:0; }
+
+    .map-hint {
+        position:absolute; bottom:24px; left:50%; transform:translateX(-50%); z-index:1001;
+        background:rgba(32,33,36,0.85); color:white; padding:10px 20px; border-radius:24px;
+        font-size:13px; font-weight:500; pointer-events:none; animation:hintFade 4s ease forwards;
+    }
+    @keyframes hintFade { 0%,70%{opacity:1} 100%{opacity:0} }
 </style>
 
 <div class="add-container">
-<a href="{% url 'parking_provider' %}" class="back-btn">← Back</a>
-<div class="add-card">
-<div class="card-header"><h2>Add Smart Parking 🚗</h2></div>
-<form method="POST" enctype="multipart/form-data">
-{% csrf_token %}
-<input type="text" name="parking_name" placeholder="Parking Name" required>
-<input type="text" id="locationInput" name="location" placeholder="Enter address OR choose from map" required>
-<div class="preview" id="locationPreview">📍 No location selected</div>
-<button type="button" class="map-btn" onclick="openMapModal()">📍 Pick From Map</button>
-<input type="hidden" id="latitude" name="latitude">
-<input type="hidden" id="longitude" name="longitude">
 
-<h4>🚗 Slots & Price</h4>
-<div class="grid-2">
-    <input type="number" name="bike_slots" placeholder="Bike Slots"><input type="number" name="bike_price" placeholder="Bike ₹">
-    <input type="number" name="car_slots" placeholder="Car Slots"><input type="number" name="car_price" placeholder="Car ₹">
-    <input type="number" name="suv_slots" placeholder="SUV Slots"><input type="number" name="suv_price" placeholder="SUV ₹">
-    <input type="number" name="truck_slots" placeholder="Truck Slots"><input type="number" name="truck_price" placeholder="Truck ₹">
+    <!-- 🔥 TOP NAV -->
+    <div class="top-bar">
+        <a href="javascript:history.back()" class="back-btn">← Back</a>
+        <div class="page-title">Add Parking</div>
+        <a href="{% url 'parking_provider' %}" class="dashboard-btn">Dashboard →</a>
+    </div>
+
+    <div class="add-card">
+        <h2>Add Smart Parking 🚗</h2>
+
+        <form method="POST" enctype="multipart/form-data" id="parkingForm">
+            {% csrf_token %}
+
+            <!-- NAME -->
+            <div class="form-group">
+                <input type="text" name="parking_name" placeholder="e.g. City Mall Basement Parking" required>
+                <small>Give a clear identifiable name</small>
+            </div>
+
+            <!-- LOCATION -->
+            <div class="form-group">
+                <input type="text" id="locationInput" name="location"
+                    placeholder="e.g. Civil Lines, Prayagraj OR pick from map" required>
+                <small>You can type OR select from map</small>
+                <div class="error" id="locationError">Please select a valid location</div>
+            </div>
+
+            <div class="preview" id="locationPreview">📍 No location selected</div>
+
+            <button type="button" class="map-btn" onclick="openMapModal()">📍 Pick From Map</button>
+
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+
+            <!-- SLOTS -->
+            <div class="section">
+                <h4>🚗 Slots & Pricing</h4>
+
+                <div class="grid-2">
+                    <input type="number" name="bike_slots" placeholder="Bike Slots (e.g. 20)">
+                    <input type="number" name="bike_price" placeholder="Bike ₹/hr (e.g. 10)">
+
+                    <input type="number" name="car_slots" placeholder="Car Slots (e.g. 15)">
+                    <input type="number" name="car_price" placeholder="Car ₹/hr (e.g. 30)">
+
+                    <input type="number" name="suv_slots" placeholder="SUV Slots (e.g. 10)">
+                    <input type="number" name="suv_price" placeholder="SUV ₹/hr (e.g. 50)">
+
+                    <input type="number" name="truck_slots" placeholder="Truck Slots (e.g. 5)">
+                    <input type="number" name="truck_price" placeholder="Truck ₹/hr (e.g. 80)">
+                </div>
+
+                <small>Enter total slots and hourly price</small>
+            </div>
+
+            <!-- FREE -->
+            <div class="section">
+                <h4>🎁 Free Time</h4>
+
+                <div class="grid-2">
+                    <input type="number" name="bike_first_free_limit" placeholder="Bike Free Hours (e.g. 1)">
+                    <input type="number" name="car_first_free_limit" placeholder="Car Free Hours (e.g. 2)">
+
+                    <input type="number" name="suv_first_free_limit" placeholder="SUV Free Hours (e.g. 1)">
+                    <input type="number" name="truck_first_free_limit" placeholder="Truck Free Hours (e.g. 0)">
+                </div>
+
+                <small>First X hours free (optional)</small>
+            </div>
+
+            <!-- FILE -->
+            <div class="section">
+                <h4>🖼 Upload Images</h4>
+
+                <input type="file" name="images" accept="image/*" multiple style="padding:10px; background:#f8f9fa; border:2px dashed #cbd5e1; border-radius:10px; width:100%; cursor:pointer;">
+
+                <small style="color:#64748b;">* Tip: Hold <strong>Ctrl</strong> (Windows) or <strong>Command</strong> (Mac) while selecting to upload multiple images at once.</small>
+            </div>
+
+            <button type="submit">🚀 Add Parking</button>
+
+        </form>
+    </div>
 </div>
 
-<h4>🎁 Free Limits</h4>
-<div class="grid-2">
-    <input type="number" name="bike_first_free_limit" placeholder="Bike Free"><input type="number" name="car_first_free_limit" placeholder="Car Free">
-    <input type="number" name="suv_first_free_limit" placeholder="SUV Free"><input type="number" name="truck_first_free_limit" placeholder="Truck Free">
-</div>
-
-<h4>🖼 Upload</h4>
-<input type="file" name="images" multiple>
-<input type="file" name="qr_code_image">
-<button type="submit">🚀 Add Parking</button>
-</form>
-</div>
-</div>
-
+<!-- MAP -->
 <div id="mapModal">
     <div class="map-header">
         <input type="text" id="mapSearch" placeholder="Search a location..." autocomplete="off">
@@ -127,38 +286,93 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-let map, marker;
-function openMapModal(){
-    document.getElementById("mapModal").classList.add("open");
-    document.body.style.overflow="hidden";
-    var hint=document.getElementById("mapHint"); if(hint){hint.style.animation='none';hint.offsetHeight;hint.style.animation='';}
-    setTimeout(()=>{
-        if(!map){
-            map=L.map('map',{zoomControl:true}).setView([26.8,80.9],13);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:20}).addTo(map);
-            map.on('click',e=>{setMarker(e.latlng.lat,e.latlng.lng);});
-            navigator.geolocation.getCurrentPosition(pos=>{map.setView([pos.coords.latitude,pos.coords.longitude],14);});
+    let map, marker;
+    const latInput = document.getElementById("latitude");
+    const lngInput = document.getElementById("longitude");
+    const locationInput = document.getElementById("locationInput");
+    const locationPreview = document.getElementById("locationPreview");
+    const mapSearch = document.getElementById("mapSearch");
+
+    function openMapModal() {
+        document.getElementById("mapModal").classList.add("open");
+        document.body.style.overflow = "hidden";
+        var hint = document.getElementById("mapHint");
+        if (hint) { hint.style.animation = 'none'; hint.offsetHeight; hint.style.animation = ''; }
+
+        setTimeout(() => {
+            if (!map) {
+                map = L.map('map', {zoomControl: true}).setView([26.8, 80.9], 13);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {maxZoom: 20}).addTo(map);
+
+                map.on('click', e => setMarker(e.latlng.lat, e.latlng.lng));
+
+                navigator.geolocation.getCurrentPosition(pos => {
+                    map.setView([pos.coords.latitude, pos.coords.longitude], 14);
+                });
+            }
+            map.invalidateSize();
+        }, 150);
+    }
+
+    function closeMapModal() {
+        document.getElementById("mapModal").classList.remove("open");
+        document.body.style.overflow = "";
+    }
+
+    function setMarker(lat, lng) {
+        latInput.value = lat;
+        lngInput.value = lng;
+
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([lat, lng]).addTo(map);
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+            .then(r => r.json())
+            .then(d => {
+                locationInput.value = d.display_name;
+                locationPreview.innerText = "📍 " + d.display_name;
+            });
+    }
+
+    function searchFromMap() {
+        let q = mapSearch.value;
+        if (!q) return;
+
+        fetch("https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(q))
+            .then(r => r.json())
+            .then(d => {
+                if (d.length) {
+                    map.setView([d[0].lat, d[0].lon], 16);
+                    setMarker(d[0].lat, d[0].lon);
+                } else {
+                    alert("Location not found. Try a different search.");
+                }
+            });
+    }
+
+    // Auto-geocode when user types a location manually
+    locationInput.addEventListener("change", function() {
+        if (!this.value) return;
+        fetch("https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(this.value))
+            .then(r => r.json())
+            .then(d => {
+                if (d.length) {
+                    latInput.value = d[0].lat;
+                    lngInput.value = d[0].lon;
+                    locationPreview.innerText = "📍 " + d[0].display_name;
+                }
+            });
+    });
+
+    document.getElementById("parkingForm").addEventListener("submit", function (e) {
+        if (!latInput.value) {
+            e.preventDefault();
+            document.getElementById("locationError").style.display = "block";
+            alert("Please select a location from the map or type an address and wait for it to load 📍");
         }
-        map.invalidateSize();
-    },150);
-}
-function closeMapModal(){ document.getElementById("mapModal").classList.remove("open"); document.body.style.overflow=""; }
-function setMarker(lat,lng){
-    latitude.value=lat; longitude.value=lng;
-    if(marker)map.removeLayer(marker); marker=L.marker([lat,lng]).addTo(map);
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-    .then(r=>r.json()).then(d=>{ locationInput.value=d.display_name; locationPreview.innerText="📍 "+d.display_name; });
-}
-function searchFromMap(){
-    let q=mapSearch.value;
-    fetch("https://nominatim.openstreetmap.org/search?format=json&q="+q)
-    .then(r=>r.json()).then(d=>{ if(d.length){ map.setView([d[0].lat,d[0].lon],16); setMarker(d[0].lat,d[0].lon); } });
-}
-locationInput.addEventListener("change",()=>{
-    fetch("https://nominatim.openstreetmap.org/search?format=json&q="+locationInput.value)
-    .then(r=>r.json()).then(d=>{ if(d.length){ latitude.value=d[0].lat; longitude.value=d[0].lon; locationPreview.innerText="📍 "+d[0].display_name; if(map){map.setView([d[0].lat,d[0].lon],16); if(marker)map.removeLayer(marker); marker=L.marker([d[0].lat,d[0].lon]).addTo(map);} } });
-});
-document.querySelector("form").addEventListener("submit",e=>{ if(!latitude.value){ e.preventDefault(); alert("Please select a location"); } });
+    });
 </script>
+
 {% endblock %}

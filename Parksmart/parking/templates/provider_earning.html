@@ -14,30 +14,52 @@
     text-decoration:none; font-weight:600; font-size:14px; transition:all 0.3s;
     box-shadow:0 2px 10px rgba(0,0,0,0.06);
 }
-.nav-btn:hover { background:#f5f5f5; }
+.nav-btn:hover { background:#f5f5f5; transform:translateY(-1px); }
 
-.summary{
-    background:#fff; padding:32px; border-radius:16px; text-align:center;
-    margin-bottom:30px; box-shadow:0 4px 20px rgba(0,0,0,0.08);
+/* Stats Grid */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:28px; }
+.stat-card {
+    background:#fff; padding:24px; border-radius:16px; text-align:center;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08); transition:all 0.3s;
 }
-.summary h4 { color:#999; font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
-.summary h3{ font-size:40px; font-weight:800; color:#2ecc71; }
+.stat-card:hover { transform:translateY(-4px); box-shadow:0 12px 30px rgba(0,0,0,0.12); }
+.stat-label { font-size:12px; color:#999; text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-bottom:8px; }
+.stat-value { font-size:32px; font-weight:800; }
+.stat-value.green { color:#2ecc71; }
+.stat-value.blue { color:#667eea; }
+.stat-value.orange { color:#f39c12; }
+.stat-value.red { color:#e74c3c; }
+.stat-sub { font-size:12px; color:#bbb; margin-top:4px; }
 
-.container{ display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; }
-
-.card{
-    background:#fff; padding:20px; border-radius:14px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.06); transition:all 0.3s;
-    animation:cardSlideUp 0.4s ease forwards; opacity:0;
+/* Table */
+.table-box {
+    background:#fff; border-radius:16px; overflow:hidden;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08); margin-top:20px;
 }
-.card:nth-child(1){animation-delay:0.05s}.card:nth-child(2){animation-delay:0.1s}.card:nth-child(3){animation-delay:0.15s}.card:nth-child(4){animation-delay:0.2s}
-@keyframes cardSlideUp { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
-.card:hover{ transform:translateY(-4px); box-shadow:0 12px 30px rgba(0,0,0,0.1); }
+.table-header { padding:20px 24px; border-bottom:1px solid #f0f0f0; }
+.table-header h3 { font-size:16px; font-weight:700; color:#222; }
 
-.title{ font-weight:700; font-size:15px; color:#222; margin-bottom:8px; }
-.amount{ color:#2ecc71; font-weight:800; font-size:20px; }
-.date{ font-size:12px; color:#bbb; margin-top:6px; }
-.empty{ text-align:center; color:#bbb; font-size:16px; grid-column:1/-1; padding:40px; background:#fff; border-radius:14px; }
+table { width:100%; border-collapse:collapse; }
+th { background:#f8f9fa; color:#555; padding:14px 18px; text-align:left; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+td { padding:14px 18px; border-bottom:1px solid #f0f0f0; color:#444; font-size:14px; }
+tr { transition:background 0.2s; }
+tr:hover { background:#fafafa; }
+tr:last-child td { border-bottom:none; }
+
+.booking-code { background:#f0f2ff; padding:4px 10px; border-radius:6px; color:#667eea; font-weight:700; font-size:13px; }
+.price { color:#2ecc71; font-weight:700; }
+.date { font-size:12px; color:#999; }
+
+.status-badge { padding:4px 12px; border-radius:8px; font-size:12px; font-weight:700; display:inline-block; }
+.badge-paid { background:#e8f5e9; color:#2e7d32; }
+.badge-pending { background:#fce4ec; color:#c62828; }
+.badge-free { background:#e3f2fd; color:#1565c0; }
+.badge-refunded { background:#fff3cd; color:#856404; }
+
+.txn-id { font-size:10px; color:#bbb; display:block; margin-top:2px; }
+.empty { text-align:center; padding:40px; color:#bbb; font-size:16px; }
+
+@media(max-width:768px) { .table-box{overflow-x:auto} th,td{padding:10px 12px;font-size:13px} }
 </style>
 
 <div class="wrapper">
@@ -46,15 +68,67 @@
         <a href="{% url 'parking_provider' %}" class="nav-btn">← Dashboard</a>
         <a href="{% url 'provider_bookings' %}" class="nav-btn">📋 Bookings</a>
     </div>
-    <div class="summary"><h4>Total Earnings</h4><h3>₹{{ total_earnings }}</h3></div>
-    <div class="container">
-        {% for b in bookings %}
-        <div class="card">
-            <div class="title">🚗 {{ b.parking.parking_name }}</div>
-            <div class="amount">₹{{ b.total_price }}</div>
-            <div class="date">📅 {{ b.booking_time }}</div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Gross Revenue</div>
+            <div class="stat-value" style="color:#64748b;">₹{{ total_earnings }}</div>
+            <div class="stat-sub">Including penalties</div>
         </div>
-        {% empty %}<p class="empty">No earnings yet 💸</p>{% endfor %}
+        <div class="stat-card">
+            <div class="stat-label">Platform Fee (10%)</div>
+            <div class="stat-value red">-₹{{ platform_fee|floatformat:0 }}</div>
+            <div class="stat-sub">Park Smart Commision</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">✨ Net Earnings</div>
+            <div class="stat-value green">₹{{ net_earnings|floatformat:0 }}</div>
+            <div class="stat-sub">Available for payout</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">💳 Collected vs Pending</div>
+            <div style="font-size:16px; font-weight:700; margin-top:10px;">✅ ₹{{ paid_total }} <br> <span style="color:#eab308;">⏳ ₹{{ pending_total }}</span></div>
+            <div class="stat-sub">{{ paid_count }} paid | {{ pending_count }} pending</div>
+        </div>
+    </div>
+
+    <!-- Booking History -->
+    <div class="table-box">
+        <div class="table-header"><h3>📊 Payment History</h3></div>
+        <table>
+            <tr>
+                <th>🎫 Code</th>
+                <th>🚗 Parking</th>
+                <th>👤 User</th>
+                <th>💰 Amount</th>
+                <th>💳 Payment</th>
+                <th>📅 Date</th>
+            </tr>
+            {% for b in bookings %}
+            <tr>
+                <td><span class="booking-code">{{ b.booking_code }}</span></td>
+                <td>{{ b.parking.parking_name }}</td>
+                <td>{{ b.user.username }}</td>
+                <td class="price">₹{{ b.total_price }}</td>
+                <td>
+                    {% if b.payment_status == 'completed' %}
+                        <span class="status-badge badge-paid">✅ Paid</span>
+                        {% if b.payment_txn %}<span class="txn-id">{{ b.payment_txn|truncatechars:22 }}</span>{% endif %}
+                    {% elif b.payment_status == 'refunded' %}
+                        <span class="status-badge badge-refunded">💰 Refunded</span>
+                    {% elif b.payment_status == 'free' %}
+                        <span class="status-badge badge-free">🎁 Free</span>
+                    {% else %}
+                        <span class="status-badge badge-pending">⏳ Unpaid</span>
+                    {% endif %}
+                </td>
+                <td class="date">{{ b.booking_time|date:"d M Y, h:i A" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="empty">No bookings yet 💸</td></tr>
+            {% endfor %}
+        </table>
     </div>
 </div>
 {% endblock %}

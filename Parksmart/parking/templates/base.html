@@ -1,277 +1,354 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Smart Park — Smart Parking System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:'Inter',sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
 
-        body{
-            min-height:100vh;
-            background: linear-gradient(135deg,#0f172a,#020617);
-            color:white;
-            overflow-x:hidden;
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8fafc, #eef2ff);
+            color: #1e293b;
+            overflow-x: hidden;
         }
 
-        /* BACKGROUND GLOW ANIMATION */
-        body::before{
-            content:"";
-            position:fixed;
-            width:600px;
-            height:600px;
-            background:radial-gradient(circle,#6366f1 0%, transparent 70%);
-            top:-100px;
-            left:-100px;
-            opacity:0.25;
-            animation:moveGlow 12s infinite alternate ease-in-out;
-            z-index:-1;
+        /* 🔵 Animated Background Blobs */
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
         }
 
-        @keyframes moveGlow{
-            0%{ transform:translate(0,0); }
-            100%{ transform:translate(200px,150px); }
+        body::before {
+            background: #6366f1;
+            top: -100px;
+            left: -100px;
+            opacity: 0.25;
+            animation: move1 10s infinite alternate;
         }
 
-        /* HEADER */
-        .header{
-            height:70px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            border-bottom:1px solid #1e293b;
-            background:#020617;
+        body::after {
+            background: #22c55e;
+            bottom: -120px;
+            right: -120px;
+            opacity: 0.2;
+            animation: move2 12s infinite alternate;
         }
 
-        .header-brand{
-            font-size:22px;
-            font-weight:800;
-            display:flex;
-            gap:10px;
-            align-items:center;
+        @keyframes move1 {
+            from {
+                transform: translate(0, 0);
+            }
+
+            to {
+                transform: translate(120px, 100px);
+            }
         }
 
-        .header-icon{
-            background:#6366f1;
-            padding:8px;
-            border-radius:10px;
+        @keyframes move2 {
+            from {
+                transform: translate(0, 0);
+            }
+
+            to {
+                transform: translate(-120px, -80px);
+            }
+        }
+
+        /* HEADER GLASS */
+        .header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .header-brand {
+            font-size: 22px;
+            font-weight: 800;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .header-icon {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            padding: 8px;
+            border-radius: 10px;
         }
 
         /* MAIN */
-        .main{
-            display:flex;
-            justify-content:center;
-            padding:60px 20px;
+        .main {
+            display: flex;
+            justify-content: center;
+            padding: 80px 20px;
         }
 
-        .hero{
-            display:flex;
-            gap:60px;
-            max-width:1100px;
-            width:100%;
+        .hero {
+            display: flex;
+            gap: 60px;
+            max-width: 1100px;
+            width: 100%;
         }
 
         /* LEFT */
-        .hero-left{
-            flex:1;
-            animation:fadeUp 0.8s ease;
+        .hero-left {
+            flex: 1;
+            animation: fadeUp 1s ease;
         }
 
-        @keyframes fadeUp{
-            from{ opacity:0; transform:translateY(30px); }
-            to{ opacity:1; transform:translateY(0); }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .badge{
-            background:#1e293b;
-            padding:6px 14px;
-            border-radius:20px;
-            font-size:13px;
-            margin-bottom:20px;
-            color:#cbd5f5;
+        .badge {
+            background: #eef2ff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            color: #4f46e5;
+            font-weight: 600;
         }
 
-        h1{
-            font-size:46px;
-            font-weight:800;
-            margin-bottom:15px;
+        /* 🔥 Gradient Text */
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #6366f1, #22c55e);
+            -webkit-background-clip: text;
+            color: transparent;
         }
 
-        h1 span{
-            color:#818cf8;
+        p {
+            color: #475569;
+            margin-bottom: 30px;
+            line-height: 1.6;
         }
 
-        p{
-            color:#cbd5f5;
-            margin-bottom:30px;
-            line-height:1.6;
+        .buttons {
+            display: flex;
+            gap: 15px;
         }
 
-        .buttons{
-            display:flex;
-            gap:15px;
+        .btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn{
-            padding:14px 28px;
-            border-radius:10px;
-            text-decoration:none;
-            font-weight:700;
-            transition:0.3s;
+        /* BUTTON EFFECT */
+        .btn::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: -100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            transition: 0.5s;
         }
 
-        .primary{
-            background:#6366f1;
-            color:white;
+        .btn:hover::after {
+            left: 100%;
         }
 
-        .primary:hover{
-            transform:translateY(-2px);
-            background:#4f46e5;
+        .primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
         }
 
-        .secondary{
-            border:1px solid #334155;
-            color:#e2e8f0;
+        .primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
         }
 
-        .secondary:hover{
-            background:#1e293b;
+        .secondary {
+            border: 1px solid #d1d5db;
+            color: #334155;
+            background: white;
         }
 
-        /* RIGHT FLOATING */
-        .hero-right{
-            flex:1;
-            position:relative;
+        .secondary:hover {
+            transform: scale(1.05);
         }
 
-        .card{
-            position:absolute;
-            background:#1e293b;
-            padding:20px;
-            border-radius:16px;
-            width:220px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.5);
-            animation:float 6s infinite ease-in-out;
+        /* RIGHT */
+        .hero-right {
+            flex: 1;
+            position: relative;
         }
 
-        @keyframes float{
-            0%,100%{ transform:translateY(0); }
-            50%{ transform:translateY(-12px); }
+        /* GLASS CARDS */
+        .card {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            padding: 20px;
+            border-radius: 16px;
+            width: 220px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            animation: float 6s infinite ease-in-out;
+            transition: 0.3s;
         }
 
-        .card:nth-child(1){
-            top:0;
-            right:0;
+        .card:hover {
+            transform: translateY(-8px) scale(1.03);
         }
 
-        .card:nth-child(2){
-            bottom:0;
-            left:0;
-            animation-delay:2s;
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
         }
 
-        .card:nth-child(3){
-            top:50%;
-            left:50%;
-            transform:translate(-50%,-50%);
-            animation-delay:4s;
+        .card:nth-child(1) {
+            top: 0;
+            right: 0;
         }
 
-        .card-title{
-            font-size:12px;
-            color:#94a3b8;
+        .card:nth-child(2) {
+            bottom: 0;
+            left: 0;
+            animation-delay: 2s;
         }
 
-        .card-value{
-            font-size:22px;
-            font-weight:800;
-            margin-top:5px;
+        .card:nth-child(3) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 4s;
         }
 
-        .green{ color:#22c55e; }
+        .card-title {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: 800;
+            margin-top: 5px;
+        }
+
+        .green {
+            color: #16a34a;
+        }
 
         /* FOOTER */
-        .footer{
-            text-align:center;
-            padding:15px;
-            color:#94a3b8;
-            border-top:1px solid #1e293b;
+        .footer {
+            text-align: center;
+            padding: 15px;
+            color: #64748b;
         }
 
-        @media(max-width:900px){
-            .hero{
-                flex-direction:column;
-                text-align:center;
+        /* RESPONSIVE */
+        @media(max-width:900px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
             }
-            .hero-right{ display:none; }
-            .buttons{ justify-content:center; }
-        }
 
+            .hero-right {
+                display: none;
+            }
+
+            .buttons {
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-<div class="header">
-    <div class="header-brand">
-        <div class="header-icon">🚗</div>
-        SMART PARK
-    </div>
-</div>
-
-<div class="main">
-    <div class="hero">
-
-        <!-- LEFT -->
-        <div class="hero-left">
-            <div class="badge">Live Parking Availability</div>
-
-            <h1>Find Parking <br><span>Before You Arrive</span></h1>
-
-            <p>
-                Check real-time parking availability, compare prices, and reserve your spot in advance. 
-                Designed for daily commuters, event visitors, and parking owners.
-            </p>
-
-            <div class="buttons">
-                <a href="/login" class="btn primary">Login →</a>
-                <a href="/register" class="btn secondary">Create Account</a>
-            </div>
+    <div class="header">
+        <div class="header-brand">
+            <div class="header-icon">🚗</div>
+            SMART PARK
         </div>
+    </div>
 
-        <!-- RIGHT -->
-        <div class="hero-right">
+    <div class="main">
+        <div class="hero">
 
-            <div class="card">
-                <div class="card-title">Nearby Available Slots</div>
-                <div class="card-value green">32 slots</div>
+            <div class="hero-left">
+                <div class="badge">Live Parking Availability</div>
+
+                <h1>Find Parking Before You Arrive</h1>
+
+                <p>
+                    Check real-time parking availability, compare prices, and reserve your spot in advance.
+                </p>
+
+                <div class="buttons">
+                    <a href="/login" class="btn primary">Login →</a>
+                    <a href="/register" class="btn secondary">Create Account</a>
+                </div>
             </div>
 
-            <div class="card">
-                <div class="card-title">Average Parking Cost</div>
-                <div class="card-value">₹20 / hour</div>
-            </div>
+            <div class="hero-right">
+                <div class="card">
+                    <div class="card-title">Nearby Available Slots</div>
+                    <div class="card-value green">32 slots</div>
+                </div>
 
-            <div class="card">
-                <div class="card-title">Current Active Bookings</div>
-                <div class="card-value green">18 vehicles</div>
+                <div class="card">
+                    <div class="card-title">Average Parking Cost</div>
+                    <div class="card-value">₹20 / hour</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Active Bookings</div>
+                    <div class="card-value green">18 vehicles</div>
+                </div>
             </div>
 
         </div>
-
     </div>
-</div>
 
-<div class="footer">
-    © 2026 Smart Park — Real-time Parking Management System
-</div>
+    <div class="footer">
+        © 2026 Smart Park — Real-time Parking Management System
+    </div>
 
 </body>
+
 </html>

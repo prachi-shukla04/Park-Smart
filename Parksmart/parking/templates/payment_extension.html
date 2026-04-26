@@ -36,19 +36,30 @@
 
 .cost { font-size:36px; font-weight:800; color:#2ecc71; text-align:center; margin:24px 0; }
 
-.qr { text-align:center; margin-bottom:20px; }
-.qr img { width:160px; border-radius:14px; border:2px solid #667eea; padding:6px; background:white; }
-.qr p { color:#999; font-size:13px; margin-top:8px; }
-.qr p i { color:#667eea; }
+.security-strip {
+    display:flex; gap:12px; justify-content:center; padding:12px;
+    background:#f8f9fa; border-radius:10px; margin-bottom:16px;
+}
+.security-item { font-size:11px; color:#888; font-weight:600; }
 
 .btn {
     width:100%; padding:16px; border-radius:14px;
-    background:linear-gradient(135deg, #43e97b, #38f9d7); color:#1a1a2e;
+    background:linear-gradient(135deg, #667eea, #764ba2); color:#fff;
     font-weight:700; font-size:15px; border:none; cursor:pointer;
     transition:all 0.3s; font-family:'Inter',sans-serif;
-    box-shadow:0 8px 25px rgba(67,233,123,0.25);
+    box-shadow:0 8px 25px rgba(102,126,234,0.3);
 }
-.btn:hover { transform:translateY(-2px); box-shadow:0 12px 35px rgba(67,233,123,0.4); }
+.btn:hover { transform:translateY(-2px); box-shadow:0 12px 35px rgba(102,126,234,0.45); }
+
+.powered-by { text-align:center; font-size:11px; color:#bbb; margin-top:14px; }
+
+.error-box { background:#fff5f5; border:1px solid #fdd; padding:12px; border-radius:10px; margin-bottom:14px; text-align:center; display:none; }
+.error-box p { color:#c0392b; font-size:13px; font-weight:600; }
+
+.loading-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center; }
+.loading-box { background:#fff; padding:40px 50px; border-radius:20px; text-align:center; }
+.spinner { width:50px; height:50px; border:4px solid #eee; border-top:4px solid #667eea; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 15px; }
+@keyframes spin { to{transform:rotate(360deg)} }
 
 @media(max-width:768px) { .payment-wrapper{grid-template-columns:1fr} .hours-grid{grid-template-columns:repeat(2, 1fr)} .title{font-size:20px} }
 </style>
@@ -59,11 +70,14 @@
         <div class="section">
             <div class="section-title">Booking Info</div>
             <p><i class="fa-solid fa-location-dot"></i> {{ booking.parking.parking_name }}</p>
-            <p><i class="fa-solid fa-car"></i> {{ booking.vehicle_type }}</p>
+            <p><i class="fa-solid fa-car"></i> {{ booking.vehicle_type }} — {{ booking.vehicle_number }}</p>
             <p><i class="fa-solid fa-clock"></i> {{ booking.hours }} hrs current</p>
+            {% if booking.end_time %}
+            <p><i class="fa-solid fa-calendar"></i> Ends: {{ booking.end_time|date:"d M Y, h:i A" }}</p>
+            {% endif %}
         </div>
         <div class="section">
-            <div class="section-title">Select Duration</div>
+            <div class="section-title">Select Extension Duration</div>
             <div class="hours-grid">
                 <div class="hour-btn active" data-val="1">1 Hour</div>
                 <div class="hour-btn" data-val="2">2 Hours</div>
@@ -72,26 +86,196 @@
             </div>
         </div>
     </div>
+
     <div class="card">
-        <form method="post">{% csrf_token %}
-            <div class="summary-box"><strong><i class="fa-solid fa-receipt"></i> Payment Summary</strong><br>{{ booking.vehicle_type }} × <span id="hoursText">1</span> hr</div>
-            <div class="cost" id="costText">₹0</div>
-            <input type="hidden" name="extension_hours" id="hours" value="1">
-            {% if booking.parking.qr_code_image %}
-            <div class="qr"><img src="{{ booking.parking.qr_code_image.url }}"><p><i class="fa-solid fa-qrcode"></i> Scan & Pay</p></div>
-            {% endif %}
-            <button type="submit" class="btn" id="btn"><i class="fa-solid fa-credit-card"></i> Pay & Extend</button>
-        </form>
+        {% if show_checkout %}
+            <!-- STEP 2: Razorpay Checkout -->
+            <div class="summary-box">
+                <strong><i class="fa-solid fa-receipt"></i> Payment Summary</strong><br>
+                {{ booking.vehicle_type }} × {{ extension_hours }} hr extension
+            </div>
+            <div class="cost">₹{{ amount_display }}</div>
+
+            <div class="security-strip">
+                <div class="security-item">🔒 SSL Encrypted</div>
+                <div class="security-item">🛡️ Razorpay Secure</div>
+            </div>
+
+            <div class="error-box" id="errorBox">
+                <p id="errorMessage">Payment failed.</p>
+            </div>
+
+            <button class="btn" id="payBtn" onclick="startExtensionPayment()">
+                🔐 Pay ₹{{ amount_display }} via Razorpay
+            </button>
+
+            <p class="powered-by">🔒 Secured by <strong>Razorpay</strong></p>
+
+        {% else %}
+            <!-- STEP 1: Select hours → Submit form to create Razorpay order -->
+            <form method="post" id="extensionForm">{% csrf_token %}
+                <div class="summary-box">
+                    <strong><i class="fa-solid fa-receipt"></i> Payment Summary</strong><br>
+                    {{ booking.vehicle_type }} × <span id="hoursText">1</span> hr
+                </div>
+                <div class="cost" id="costText">₹0</div>
+                <input type="hidden" name="extension_hours" id="hours" value="1">
+
+                <div class="security-strip">
+                    <div class="security-item">🔒 Razorpay Gateway</div>
+                    <div class="security-item">💳 UPI / Cards / Netbanking</div>
+                </div>
+
+                <button type="submit" class="btn" id="proceedBtn">
+                    <i class="fa-solid fa-arrow-right"></i> Proceed to Pay
+                </button>
+            </form>
+        {% endif %}
     </div>
 </div>
 
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-box">
+        <div class="spinner"></div>
+        <p style="font-weight:700;color:#222;font-size:16px;">Verifying Payment...</p>
+        <p style="color:#999;font-size:13px;">Please don't close this window</p>
+    </div>
+</div>
+
+{% if show_checkout %}
+
+{% if is_live %}
+<!-- ✅ REAL Razorpay Checkout SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+function startExtensionPayment() {
+    document.getElementById('errorBox').style.display = 'none';
+
+    var options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "Smart Park",
+        "description": "Extension: {{ booking.booking_code }} (+{{ extension_hours }}hrs)",
+        "order_id": "{{ razorpay_order_id }}",
+        "prefill": {
+            "name": "{{ user_name }}",
+            "email": "{{ user_email }}",
+        },
+        "theme": { "color": "#667eea" },
+
+        "handler": function(response) {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            document.getElementById('payBtn').disabled = true;
+
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{% url 'verify_extension' booking.id %}";
+
+            var fields = {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'razorpay_payment_id': response.razorpay_payment_id,
+                'razorpay_order_id': response.razorpay_order_id,
+                'razorpay_signature': response.razorpay_signature,
+                'extension_hours': '{{ extension_hours }}'
+            };
+
+            for (var key in fields) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = fields[key];
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        },
+
+        "modal": {
+            "ondismiss": function() {
+                document.getElementById('errorBox').style.display = 'block';
+                document.getElementById('errorMessage').textContent = 'Payment cancelled. You can try again.';
+            }
+        }
+    };
+
+    try {
+        var rzp = new Razorpay(options);
+        rzp.on('payment.failed', function(response) {
+            document.getElementById('errorBox').style.display = 'block';
+            document.getElementById('errorMessage').textContent = 'Payment failed: ' + response.error.description;
+        });
+        rzp.open();
+    } catch(e) {
+        document.getElementById('errorBox').style.display = 'block';
+        document.getElementById('errorMessage').textContent = 'Could not open payment gateway. Check internet.';
+    }
+}
+</script>
+
+{% else %}
+<!-- ✅ SIMULATION Mode — directly submit -->
+<script>
+function startExtensionPayment() {
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.getElementById('payBtn').disabled = true;
+    document.getElementById('payBtn').textContent = 'Processing...';
+
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = "{% url 'verify_extension' booking.id %}";
+
+    var fields = {
+        'csrfmiddlewaretoken': '{{ csrf_token }}',
+        'extension_hours': '{{ extension_hours }}'
+    };
+
+    for (var key in fields) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = fields[key];
+        form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endif %}
+
+{% else %}
+<!-- Step 1: Hours selection JS -->
 <script id="pricing-data" type="application/json">{"Bike":{{ booking.parking.bike_price|default:"0" }},"Car":{{ booking.parking.car_price|default:"0" }},"SUV":{{ booking.parking.suv_price|default:"0" }},"Truck":{{ booking.parking.truck_price|default:"0" }}}</script>
 <script>
-const pricing=JSON.parse(document.getElementById("pricing-data").textContent);
-const type="{{ booking.vehicle_type }}";
-function updateCost(h){ let t=(pricing[type]||0)*h; document.getElementById("costText").innerText="₹"+t; document.getElementById("hours").value=h; document.getElementById("hoursText").innerText=h; }
-document.querySelectorAll(".hour-btn").forEach(b=>{ b.addEventListener("click",function(){ document.querySelectorAll(".hour-btn").forEach(x=>x.classList.remove("active")); this.classList.add("active"); updateCost(parseInt(this.dataset.val)); }); });
+const pricing = JSON.parse(document.getElementById("pricing-data").textContent);
+const type = "{{ booking.vehicle_type }}";
+
+function updateCost(h) {
+    let t = (pricing[type] || 0) * h;
+    document.getElementById("costText").innerText = "₹" + t;
+    document.getElementById("hours").value = h;
+    document.getElementById("hoursText").innerText = h;
+}
+
+document.querySelectorAll(".hour-btn").forEach(b => {
+    b.addEventListener("click", function() {
+        document.querySelectorAll(".hour-btn").forEach(x => x.classList.remove("active"));
+        this.classList.add("active");
+        updateCost(parseInt(this.dataset.val));
+    });
+});
+
 updateCost(1);
-document.querySelector("form").addEventListener("submit",function(){ const b=document.getElementById("btn"); b.innerHTML='<i class="fa fa-spinner fa-spin"></i> Processing...'; b.disabled=true; });
+
+document.getElementById("extensionForm").addEventListener("submit", function() {
+    var btn = document.getElementById("proceedBtn");
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Creating payment...';
+    btn.disabled = true;
+});
 </script>
+{% endif %}
+
 {% endblock %}

@@ -7,7 +7,10 @@ from django.core.exceptions import ValidationError
 import uuid
 import string
 import random
+import math
 
+
+# ===================== PARKING MODEL ===================== #
 class Parking(models.Model):
     provider = models.ForeignKey(User, on_delete=models.CASCADE)
     parking_name = models.CharField(max_length=100)
@@ -31,9 +34,9 @@ class Parking(models.Model):
     suv_price = models.FloatField(default=0)
     truck_price = models.FloatField(default=0)
 
-    qr_code_image = models.ImageField(upload_to='qr_codes/', null=True, blank=True)
+    # qr_code_image removed — Razorpay handles all payments now
 
-    # Promotions
+    # Promotions — First free bookings per vehicle type per day
     bike_free_slots = models.IntegerField(default=0)
     car_free_slots = models.IntegerField(default=0)
     suv_free_slots = models.IntegerField(default=0)
@@ -44,7 +47,7 @@ class Parking(models.Model):
     suv_first_free_limit = models.IntegerField(default=0)
     truck_first_free_limit = models.IntegerField(default=0)
 
-    # ✅ MOVE THESE INSIDE
+    # Daily tracking — how many free bookings used today
     used_bike_free_today = models.IntegerField(default=0)
     used_car_free_today = models.IntegerField(default=0)
     used_suv_free_today = models.IntegerField(default=0)
@@ -75,58 +78,20 @@ class Parking(models.Model):
             self.used_car_first_free_today = 0
             self.used_suv_first_free_today = 0
             self.used_truck_first_free_today = 0
-
             self.last_reset_date = today
             self.save()
-   # ===================== VEHICLE-WISE PROMOTIONS ===================== #
 
-    # Free slots per vehicle
-    bike_free_slots = models.IntegerField(default=0)
-    car_free_slots = models.IntegerField(default=0)
-    suv_free_slots = models.IntegerField(default=0)
-    truck_free_slots = models.IntegerField(default=0)
+    def __str__(self):
+        return f"{self.parking_name} — {self.location}"
 
-    # First free bookings per vehicle
-    bike_first_free_limit = models.IntegerField(default=0)
-    car_first_free_limit = models.IntegerField(default=0)
-    suv_first_free_limit = models.IntegerField(default=0)
-    truck_first_free_limit = models.IntegerField(default=0)
-
-   
-# ===================== TRACKING ===================== #
-
-used_bike_free_today = models.IntegerField(default=0)
-used_car_free_today = models.IntegerField(default=0)
-used_suv_free_today = models.IntegerField(default=0)
-used_truck_free_today = models.IntegerField(default=0)
-
-used_bike_first_free_today = models.IntegerField(default=0)
-used_car_first_free_today = models.IntegerField(default=0)
-used_suv_first_free_today = models.IntegerField(default=0)
-used_truck_first_free_today = models.IntegerField(default=0)
-last_reset_date = models.DateField(null=True, blank=True)
-
-def reset_daily_counters(self):
-    from django.utils import timezone
-    today = timezone.now().date()
-
-    if self.last_reset_date != today:
-        self.used_bike_first_free_today = 0
-        self.used_car_first_free_today = 0
-        self.used_suv_first_free_today = 0
-        self.used_truck_first_free_today = 0
-
-        self.last_reset_date = today
-        self.save()
-
-    if not hasattr(self, 'last_reset_date') or self.last_reset_date != today:
-        self.used_bike_first_free_today = 0
-        self.used_car_first_free_today = 0
-        self.used_suv_first_free_today = 0
-        self.used_truck_first_free_today = 0
-
-        self.last_reset_date = today
-        self.save()
+    @property
+    def average_rating(self):
+        # We need to import Avg inside or at top, better to use self.booking_set
+        ratings = [b.rating for b in self.booking_set.filter(status='completed', rating__isnull=False)]
+        if ratings:
+            return sum(ratings) / len(ratings)
+        return 0
+# ===================== USER PROFILE ===================== #
 class UserProfile(models.Model):
     ROLE_CHOICES = (
         ('user', 'Parking User'),
@@ -155,6 +120,15 @@ PAYMENT_TIMING_CHOICES = [
     ('pay_at_end', 'Pay at End'),
 ]
 
+# ✅ Phase 2: Real-world booking status system
+BOOKING_STATUS_CHOICES = [
+    ('booked', 'Booked'),        # Slot reserved, not yet started
+    ('active', 'Active'),        # Vehicle is currently parked
+    ('overstaying', 'Overstaying'),  # Past end_time, vehicle still there
+    ('completed', 'Completed'),  # Provider marked exit
+    ('cancelled', 'Cancelled'),  # User cancelled
+]
+
 
 # ===================== HELPER FUNCTION FOR UNIQUE CODE ===================== #
 def generate_unique_booking_code():
@@ -174,47 +148,56 @@ class Booking(models.Model):
     # ✅ Unique booking code
     booking_code = models.CharField(max_length=20, unique=True, editable=False)
 
+    # ✅ Assigned physical slot (e.g., 'C-3', 'B-12')
+    assigned_slot = models.CharField(max_length=10, blank=True, null=True)
+
     hours = models.IntegerField(default=1)
     total_price = models.FloatField(blank=True, null=True)
 
     booking_time = models.DateTimeField(auto_now_add=True)
-    end_time = models.DateTimeField(blank=True, null=True)
+
+    # ✅ Phase 2: User-selected time slot (replaces auto-calculated times)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
 
     # Payment timing choice
     payment_timing = models.CharField(max_length=15, choices=PAYMENT_TIMING_CHOICES, default='pay_now')
 
-    # ✅ Soft delete field
+    # Kept for backward compatibility
     is_active = models.BooleanField(default=True)
+
+    # ✅ Phase 2: Real-world status system
+    status = models.CharField(max_length=20, choices=BOOKING_STATUS_CHOICES, default='booked')
+
+    # ✅ Phase 2: Provider-controlled exit
+    is_checked_out = models.BooleanField(default=False)
+    actual_exit_time = models.DateTimeField(null=True, blank=True)
+    overstay_penalty = models.FloatField(default=0)
+
+    # ✅ Phase 3: Ratings & Reviews
+    rating = models.IntegerField(null=True, blank=True)
 
     def clean(self):
         if not re.match(r'^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$', self.vehicle_number):
             raise ValidationError("Enter valid vehicle number (e.g. UP32AB1234)")
 
-
     def save(self, *args, **kwargs):
-        PRICE_PER_HOUR = {
-            'Bike': 20,
-            'Car': 50,
-            'SUV': 70,
-            'Truck': 100
-        }
-
         # Generate unique booking code if not already set
         if not self.booking_code:
             self.booking_code = generate_unique_booking_code()
 
-        # Set total_price only if not already set (for promotions)
-        if self.total_price is None:
-            price = PRICE_PER_HOUR.get(self.vehicle_type, 50)
+        # Calculate hours from start/end if both set and price not yet calculated
+        if self.start_time and self.end_time and self.total_price is None:
+            diff = (self.end_time - self.start_time).total_seconds() / 3600
+            self.hours = max(1, math.ceil(diff))
+            price = self.parking.get_price(self.vehicle_type)
             self.total_price = price * self.hours
-
-        if self.booking_time:
-            self.end_time = self.booking_time + timedelta(hours=self.hours)
 
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username} - {self.parking.parking_name}"
+
     
 # ===================== PARKING IMAGES ===================== #
 class ParkingImage(models.Model):
@@ -255,10 +238,13 @@ PAYMENT_STATUS_CHOICES = [
     ('pending', 'Pending'),
     ('completed', 'Completed'),
     ('failed', 'Failed'),
+    ('refunded', 'Refunded'),
+    ('cancelled', 'Cancelled'),
 ]
 
 PAYMENT_METHOD_CHOICES = [
     ('qr_code', 'QR Code Payment'),
+    ('razorpay', 'Razorpay Gateway'),
 ]
 
 class Payment(models.Model):
@@ -271,6 +257,11 @@ class Payment(models.Model):
     transaction_id = models.CharField(max_length=50, unique=True, blank=True)
     payment_date = models.DateTimeField(auto_now_add=True)
     balance_paid_date = models.DateTimeField(null=True, blank=True)
+
+    # ✅ Razorpay Gateway Fields
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=200, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         # Auto-calculate deposit (25% of total, minimum ₹50)

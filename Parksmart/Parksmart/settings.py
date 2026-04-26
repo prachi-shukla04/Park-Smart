@@ -105,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -130,4 +130,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Templates folder configuration
 TEMPLATES[0]['DIRS'] = [BASE_DIR / 'templates']
+
+# ===================== RAZORPAY PAYMENT GATEWAY ===================== #
+# Get your test keys from: https://dashboard.razorpay.com/app/keys
+# Switch to "Test Mode" on the dashboard first
+RAZORPAY_KEY_ID = 'rzp_test_XXXXXXXXXXXXXX'       # Replace with your Test Key ID
+RAZORPAY_KEY_SECRET = 'XXXXXXXXXXXXXXXXXXXXXX'     # Replace with your Test Key Secret
+
 

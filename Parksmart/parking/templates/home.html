@@ -1,292 +1,285 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{% block title %}Smart Park{% endblock %}</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>{% block title %}Smart Park{% endblock %}</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:'Inter','Segoe UI', sans-serif;
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #ec4899;
+            --bg-dark: #0f172a;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
 
-        body{
-            min-height:100vh;
-            display:flex;
-            flex-direction:column;
-            background: url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80') no-repeat center/cover;
-            background-attachment: fixed;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* DARK GRADIENT OVERLAY — gives depth */
-        body::before{
-            content:"";
-            position:fixed;
-            width:100%;
-            height:100%;
-            background: linear-gradient(
-                180deg,
-                rgba(10, 10, 30, 0.85) 0%,
-                rgba(10, 10, 30, 0.70) 40%,
-                rgba(10, 10, 30, 0.80) 100%
-            );
-            z-index:-2;
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
         }
 
-        /* FLOATING PARTICLES — CSS-only animated dots */
-        body::after {
-            content: "";
+        /* DYNAMIC BACKGROUND */
+        .bg-wrapper {
             position: fixed;
-            width: 100%;
-            height: 100%;
             top: 0;
             left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            background: url('https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=1920&q=80') center/cover no-repeat;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             z-index: -1;
-            background-image:
-                radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,0.15) 50%, transparent 50%),
-                radial-gradient(2px 2px at 85% 15%, rgba(255,255,255,0.12) 50%, transparent 50%),
-                radial-gradient(1.5px 1.5px at 45% 70%, rgba(255,255,255,0.1) 50%, transparent 50%),
-                radial-gradient(2px 2px at 70% 55%, rgba(255,255,255,0.08) 50%, transparent 50%),
-                radial-gradient(1.5px 1.5px at 25% 85%, rgba(255,255,255,0.12) 50%, transparent 50%),
-                radial-gradient(2px 2px at 90% 80%, rgba(255,255,255,0.06) 50%, transparent 50%),
-                radial-gradient(1px 1px at 55% 30%, rgba(255,255,255,0.1) 50%, transparent 50%),
-                radial-gradient(2px 2px at 15% 55%, rgba(255,255,255,0.08) 50%, transparent 50%),
-                radial-gradient(1.5px 1.5px at 75% 35%, rgba(255,255,255,0.1) 50%, transparent 50%),
-                radial-gradient(1px 1px at 35% 45%, rgba(255,255,255,0.06) 50%, transparent 50%);
-            animation: particleDrift 20s linear infinite;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.7) 50%, rgba(15, 23, 42, 0.95) 100%);
         }
 
-        @keyframes particleDrift {
-            0%   { transform: translateY(0px); }
-            100% { transform: translateY(-60px); }
-        }
-
-        /* ========== HEADER — Glassmorphism ========== */
-        .header{
-            background: rgba(10, 10, 30, 0.40);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            color:#fff;
-            padding:0 40px;
-            height: 64px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            position:sticky;
-            top:0;
-            z-index:1000;
-            transition: all 0.4s ease;
+        /* HEADER / NAVBAR */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
         }
 
         .header.scrolled {
-            background: rgba(10, 10, 30, 0.92);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            border-bottom-color: rgba(255,255,255,0.03);
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .logo{
-            font-size:22px;
-            font-weight:800;
-            letter-spacing:0.5px;
+        .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: #fff;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+            color: var(--text-light);
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.02);
         }
 
         .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            animation: logoPulse 3s ease-in-out infinite;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            font-size: 20px;
+            color: white;
         }
 
-        @keyframes logoPulse {
-            0%, 100% { box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
-            50%      { box-shadow: 0 4px 25px rgba(102, 126, 234, 0.6); }
+        /* NAVIGATION LINKS */
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
 
-        .nav{
-            display:flex;
-            align-items:center;
-            gap: 4px;
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .nav a{
-            color:rgba(255,255,255,0.65);
-            text-decoration:none;
-            position:relative;
-            padding:8px 16px;
-            border-radius: 10px;
+        .nav-link:hover {
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ACTION BUTTONS */
+        .btn-action {
+            padding: 8px 20px;
+            border-radius: 20px;
             font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .nav a:hover{
-            color: #fff;
-            background: rgba(255,255,255,0.08);
-        }
-
-        /* LOGOUT BUTTON */
-        .logout{
-            background: linear-gradient(135deg, #ff416c, #ff4b2b) !important;
-            color: #fff !important;
-            padding:8px 18px;
-            border-radius:10px;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.25);
+            text-decoration: none;
             transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .logout:hover{
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 65, 108, 0.45);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
         }
 
-        /* ========== MAIN CONTENT ========== */
-        .content{
-            flex:1;
-            display:flex;
-            justify-content:center;
-            padding:30px;
-            min-height:60vh;
-            animation: contentFadeIn 0.6s ease;
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444 !important;
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        @keyframes contentFadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to   { opacity: 1; transform: translateY(0); }
+        .btn-logout:hover {
+            background: #ef4444;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
         }
 
-        /* ========== FOOTER ========== */
-        .footer{
-            background: rgba(10, 10, 30, 0.50);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-top: 1px solid rgba(255,255,255,0.04);
-            color: rgba(255,255,255,0.4);
-            text-align:center;
-            padding:16px;
-            font-size:13px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
+        /* CONTENT CONTAINER */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* FOOTER */
+        .footer {
+            padding: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--glass-border);
+            margin-top: auto;
         }
 
         .footer strong {
-            color: rgba(255,255,255,0.65);
+            color: var(--primary);
         }
 
-        /* ========== SCROLLBAR ========== */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        /* ========== RESPONSIVE ========== */
-        @media(max-width:768px){
-            .header{
-                padding: 12px 16px;
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
                 height: auto;
-                flex-direction:column;
-                gap:10px;
+                padding: 15px;
+                gap: 15px;
             }
-
             .nav {
                 flex-wrap: wrap;
                 justify-content: center;
+                gap: 10px;
             }
-
-            .nav a{
-                padding: 6px 12px;
-                font-size: 13px;
-            }
-
             .content {
-                padding: 16px;
+                padding: 20px 10px;
             }
-        }
-
-        /* ========== GLOBAL ANIMATIONS ========== */
-        @keyframes cardSlideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* SELECTION COLOR */
-        ::selection {
-            background: rgba(102, 126, 234, 0.3);
-            color: #fff;
         }
     </style>
 </head>
-
 <body>
 
-<!-- HEADER -->
-<div class="header" id="mainHeader">
-    <div class="logo">
-        <div class="logo-icon">🚗</div>
-        SMART PARK
-    </div>
+    <!-- BACKGROUND -->
+    <div class="bg-wrapper"></div>
+    <div class="bg-overlay"></div>
 
-    <div class="nav">
-        <a href="/">Home</a>
+    <!-- HEADER -->
+    <header class="header" id="navbar">
+        <a href="/" class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-car"></i></div>
+            SMART PARK
+        </a>
 
-        {% if user.is_authenticated %}
+        <nav class="nav">
+            <a href="/" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
 
-            {% if user.role == 'provider' %}
-                <a href="{% url 'parking_provider' %}">Dashboard</a>
+            {% if user.is_authenticated %}
+                {% if request.session.role == 'provider' %}
+                    <a href="{% url 'parking_provider' %}" class="btn-action btn-primary"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                {% elif request.session.role == 'user' %}
+                    <a href="{% url 'user_dashboard' %}" class="btn-action btn-primary"><i class="fa-solid fa-user"></i> Dashboard</a>
+                {% endif %}
+                <a href="{% url 'logout' %}" class="btn-action btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            {% else %}
+                <a href="/login" class="nav-link">Login</a>
+                <a href="/register" class="btn-action btn-primary">Register</a>
             {% endif %}
+        </nav>
+    </header>
 
-            <a href="{% url 'logout' %}" class="logout">Logout</a>
+    <!-- MAIN CONTENT -->
+    <main class="content">
+        {% block content %}
+        {% endblock %}
+    </main>
 
-        {% else %}
+    <!-- FOOTER -->
+    <footer class="footer">
+        © 2026 <strong>Smart Park</strong> — Modern Parking Solutions
+    </footer>
 
-            {% if page != 'login' %}
-                <a href="/login">Login</a>
-            {% endif %}
-
-            {% if page != 'register' %}
-                <a href="/register">Register</a>
-            {% endif %}
-
-        {% endif %}
-    </div>
-</div>
-
-<!-- CONTENT -->
-<div class="content">
-    {% block content %}
-    {% endblock %}
-</div>
-
-<!-- FOOTER -->
-<div class="footer">
-    © 2026 <strong>Smart Park</strong> — BCA Final Year Project
-</div>
-
-<!-- Header scroll effect -->
-<script>
-window.addEventListener('scroll', function() {
-    var header = document.getElementById('mainHeader');
-    if (window.scrollY > 20) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
-});
-</script>
+    <!-- SCRIPTS -->
+    <script>
+        // Add shadow to navbar on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 10) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+    </script>
 
 </body>
 </html>

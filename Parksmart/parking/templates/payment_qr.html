@@ -1,13 +1,18 @@
 {% extends 'home.html' %}
-{% block title %}Payment - QR Code{% endblock %}
+{% block title %}Payment{% endblock %}
 {% block content %}
 
 <style>
-.payment-container { max-width:500px; margin:20px auto; animation:fadeInUp 0.5s ease; }
+.payment-container { max-width:520px; margin:20px auto; animation:fadeInUp 0.5s ease; }
 @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
-.payment-card { background:#fff; padding:32px; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.15); }
-.payment-title { text-align:center; font-size:22px; font-weight:700; color:#222; margin-bottom:24px; }
+.payment-card {
+    background:#fff; padding:32px; border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.15);
+}
+
+.payment-title { text-align:center; font-size:22px; font-weight:700; color:#222; margin-bottom:6px; }
+.payment-subtitle { text-align:center; font-size:13px; color:#999; margin-bottom:24px; }
 
 .card { background:#f8f9fa; border:1px solid #eee; padding:18px; border-radius:14px; margin-bottom:20px; }
 .card h3 { margin-bottom:12px; font-size:14px; color:#999; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
@@ -16,85 +21,194 @@
 .info-row span:last-child { color:#333; font-weight:500; }
 .total-row { display:flex; justify-content:space-between; padding:14px 0; font-size:22px; font-weight:800; color:#2ecc71; border-top:1px dashed #eee; margin-top:10px; }
 
-.qr-section { text-align:center; padding:28px 16px; background:#f8f9fa; border:1px solid #eee; border-radius:16px; margin-bottom:20px; }
-.qr-section h3 { font-size:16px; color:#2ecc71; margin-bottom:16px; font-weight:700; }
-.qr-image { width:200px; height:200px; object-fit:contain; border-radius:16px; border:3px solid #667eea; background:white; padding:8px; margin:0 auto; display:block; }
-.qr-instructions { font-size:13px; color:#999; margin-top:14px; line-height:1.6; }
+/* Payment methods */
+.method-card {
+    display:flex; align-items:center; gap:14px; padding:16px;
+    background:#f8f9fa; border:2px solid #eee; border-radius:14px;
+    cursor:pointer; transition:all 0.3s; margin-bottom:10px;
+}
+.method-card:hover { border-color:#667eea; background:#f0f2ff; }
+.method-card.active { border-color:#667eea; background:#f0f2ff; box-shadow:0 4px 15px rgba(102,126,234,0.15); }
+.method-icon { font-size:28px; width:48px; height:48px; display:flex; align-items:center; justify-content:center; background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.method-info h4 { font-size:15px; color:#222; font-weight:700; margin-bottom:2px; }
+.method-info p { font-size:12px; color:#999; }
+.method-check { margin-left:auto; width:22px; height:22px; border-radius:50%; border:2px solid #ddd; display:flex; align-items:center; justify-content:center; transition:all 0.3s; font-size:12px; }
+.method-card.active .method-check { background:#667eea; border-color:#667eea; color:white; }
 
-.no-qr { padding:30px; text-align:center; color:#999; font-size:14px; background:#f8f9fa; border-radius:14px; border:1px dashed #ddd; margin-bottom:20px; }
-
-.steps { display:flex; gap:10px; margin:16px 0; justify-content:center; }
-.step { background:#f8f9fa; border:1px solid #eee; padding:12px 14px; border-radius:12px; font-size:12px; text-align:center; flex:1; color:#666; }
-.step .num { display:block; font-size:20px; font-weight:800; color:#667eea; margin-bottom:4px; }
+.security-strip { display:flex; gap:16px; justify-content:center; padding:14px; background:#f8f9fa; border-radius:12px; margin-bottom:20px; }
+.security-item { display:flex; align-items:center; gap:6px; font-size:11px; color:#888; font-weight:600; }
 
 .btn-pay {
-    background:linear-gradient(135deg, #43e97b, #38f9d7); color:#1a1a2e; border:none;
+    background:linear-gradient(135deg, #667eea, #764ba2); color:#fff; border:none;
     padding:16px; border-radius:14px; font-size:16px; font-weight:700; width:100%;
     cursor:pointer; transition:all 0.3s; font-family:'Inter',sans-serif;
-    box-shadow:0 8px 25px rgba(67,233,123,0.25);
+    box-shadow:0 8px 25px rgba(102,126,234,0.3);
 }
-.btn-pay:hover { transform:translateY(-2px); box-shadow:0 12px 35px rgba(67,233,123,0.4); }
-.btn-pay:disabled { background:#f0f0f0; color:#bbb; cursor:not-allowed; transform:none; box-shadow:none; }
+.btn-pay:hover { transform:translateY(-2px); box-shadow:0 12px 35px rgba(102,126,234,0.45); }
 
-.loading-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center; }
-.loading-box { background:#fff; padding:40px 50px; border-radius:20px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+.powered-by { text-align:center; font-size:11px; color:#bbb; margin-top:18px; }
+.back-link { text-align:center; margin-top:14px; }
+.back-link a { color:#999; text-decoration:none; font-size:14px; }
+.back-link a:hover { color:#667eea; }
+
+.error-box { background:#fff5f5; border:1px solid #fdd; padding:12px; border-radius:10px; margin-bottom:14px; text-align:center; display:none; }
+.error-box p { color:#c0392b; font-size:13px; font-weight:600; }
+
+/* Loading */
+.loading-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center; }
+.loading-box { background:#fff; padding:40px 50px; border-radius:20px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
 .spinner { width:50px; height:50px; border:4px solid #eee; border-top:4px solid #667eea; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 15px; }
 @keyframes spin { to{transform:rotate(360deg)} }
 
-.secure-text { text-align:center; font-size:12px; color:#bbb; margin-top:16px; }
-.back-link { text-align:center; margin-top:14px; }
-.back-link a { color:#999; text-decoration:none; font-size:14px; transition:color 0.3s; }
-.back-link a:hover { color:#667eea; }
+/* SIM mode fields */
+.sim-field { margin-bottom:14px; }
+.sim-field label { display:block; font-size:13px; color:#666; font-weight:600; margin-bottom:5px; }
+.sim-field input { width:100%; padding:12px 14px; border:1px solid #e0e0e0; border-radius:10px; font-size:14px; outline:none; transition:border 0.3s; }
+.sim-field input:focus { border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.1); }
+.sim-mode-tag { text-align:center; padding:6px 14px; background:#fef3c7; border:1px solid #fde68a; border-radius:8px; font-size:11px; color:#92400e; font-weight:600; margin-bottom:16px; }
 </style>
 
 <div class="payment-container">
 <div class="payment-card">
-    <h2 class="payment-title">📱 QR Code Payment</h2>
+    <h2 class="payment-title">💳 Secure Payment</h2>
+    <p class="payment-subtitle">256-bit SSL Encrypted</p>
+
+    {% if not is_live %}
+    <div class="sim-mode-tag">🧪 Demo Mode — No real money will be charged</div>
+    {% endif %}
+
+    <!-- Booking Details -->
     <div class="card">
         <h3>📋 Booking Details</h3>
         <p style="color:#444"><strong>Code:</strong> <span class="badge">{{ booking.booking_code }}</span></p>
         <div class="info-row"><span>Parking</span><span>{{ booking.parking.parking_name }}</span></div>
-        <div class="info-row"><span>Vehicle</span><span>{{ booking.vehicle_type }} - {{ booking.vehicle_number }}</span></div>
+        <div class="info-row"><span>Vehicle</span><span>{{ booking.vehicle_type }} — {{ booking.vehicle_number }}</span></div>
         <div class="info-row"><span>Duration</span><span>{{ booking.hours }} hours</span></div>
-        <div class="total-row"><span>Total</span><span>₹{{ payment.total_amount }}</span></div>
+        {% if booking.start_time %}
+        <div class="info-row"><span>Time Slot</span><span>{{ booking.start_time|date:"d M, h:i A" }} → {{ booking.end_time|date:"h:i A" }}</span></div>
+        {% endif %}
+        <div class="total-row"><span>Total</span><span>₹{{ amount_display }}</span></div>
     </div>
 
-    {% if has_qr %}
-    <div class="qr-section">
-        <h3>📱 Scan to Pay ₹{{ payment.total_amount }}</h3>
-        <img src="{{ booking.parking.qr_code_image.url }}" alt="QR" class="qr-image">
-        <div class="steps">
-            <div class="step"><span class="num">1</span>Open UPI App</div>
-            <div class="step"><span class="num">2</span>Scan QR Code</div>
-            <div class="step"><span class="num">3</span>Pay ₹{{ payment.total_amount }}</div>
-        </div>
-        <p class="qr-instructions">Use any UPI app — Google Pay, PhonePe, Paytm, BHIM etc.</p>
+    <!-- Payment Methods -->
+    <div class="method-card active" data-method="upi" onclick="selectMethod(this, 'UPI')">
+        <div class="method-icon">📱</div>
+        <div class="method-info"><h4>UPI</h4><p>Google Pay, PhonePe, Paytm</p></div>
+        <div class="method-check">✓</div>
     </div>
+    <div class="method-card" data-method="card" onclick="selectMethod(this, 'Card')">
+        <div class="method-icon">💳</div>
+        <div class="method-info"><h4>Credit / Debit Card</h4><p>Visa, Mastercard, Rupay</p></div>
+        <div class="method-check">✓</div>
+    </div>
+    <div class="method-card" data-method="netbanking" onclick="selectMethod(this, 'Netbanking')">
+        <div class="method-icon">🏦</div>
+        <div class="method-info"><h4>Net Banking</h4><p>All major banks supported</p></div>
+        <div class="method-check">✓</div>
+    </div>
+
+    <!-- Security -->
+    <div class="security-strip">
+        <div class="security-item">🔒 SSL Encrypted</div>
+        <div class="security-item">🛡️ PCI DSS</div>
+        <div class="security-item">✅ Verified</div>
+    </div>
+
+    <div class="error-box" id="errorBox"><p id="errorMessage"></p></div>
+
+    {% if is_live %}
+    <!-- ✅ REAL Razorpay Mode -->
+    <button class="btn-pay" id="payButton" onclick="startRazorpay()">🔐 Pay ₹{{ amount_display }} Securely</button>
     {% else %}
-    <div class="no-qr"><p style="font-size:40px;margin-bottom:10px;">⚠️</p><p><strong style="color:#555">QR Code not available</strong></p><p>Contact the provider directly.</p></div>
+    <!-- ✅ SIMULATION Mode -->
+    <form method="post" action="{% url 'verify_payment' booking.id %}" id="simForm">
+        {% csrf_token %}
+        <input type="hidden" name="payment_method" id="paymentMethod" value="UPI">
+        <button type="submit" class="btn-pay" id="payButton">🔐 Pay ₹{{ amount_display }}</button>
+    </form>
     {% endif %}
 
-    <form method="post" id="paymentForm">{% csrf_token %}
-        <button type="submit" class="btn-pay" id="payButton" {% if not has_qr %}disabled{% endif %}>✅ I Have Paid ₹{{ payment.total_amount }}</button>
-    </form>
-    <p class="secure-text">🔒 Secure Payment • College Project Demo</p>
+    <p class="powered-by">🔒 Secured Payment Gateway {% if not is_live %}• Demo Mode{% endif %}</p>
     <div class="back-link"><a href="{% url 'my_bookings' %}">← Back to My Bookings</a></div>
 </div>
 </div>
 
+<!-- Loading -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-box">
         <div class="spinner"></div>
         <p style="font-weight:700;color:#222;font-size:16px;">Processing Payment...</p>
-        <p style="color:#999;font-size:13px;">Please wait</p>
+        <p style="color:#999;font-size:13px;">Verifying with payment gateway</p>
     </div>
 </div>
 
 <script>
-document.getElementById('paymentForm').addEventListener('submit', function(){
-    document.getElementById('payButton').disabled=true;
-    document.getElementById('payButton').textContent='Processing...';
-    document.getElementById('loadingOverlay').style.display='flex';
+var selectedMethod = 'UPI';
+
+function selectMethod(el, method) {
+    selectedMethod = method;
+    document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    var hidden = document.getElementById('paymentMethod');
+    if (hidden) hidden.value = method;
+}
+
+{% if is_live %}
+<!-- ✅ REAL Razorpay Checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+function startRazorpay() {
+    var options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "Smart Park",
+        "description": "Parking: {{ booking.booking_code }}",
+        "order_id": "{{ razorpay_order_id }}",
+        "prefill": { "name": "{{ user_name }}", "email": "{{ user_email }}" },
+        "theme": { "color": "#667eea" },
+        "handler": function(response) {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{% url 'verify_payment' booking.id %}";
+            var fields = {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'razorpay_payment_id': response.razorpay_payment_id,
+                'razorpay_order_id': response.razorpay_order_id,
+                'razorpay_signature': response.razorpay_signature
+            };
+            for (var k in fields) {
+                var inp = document.createElement('input');
+                inp.type = 'hidden'; inp.name = k; inp.value = fields[k];
+                form.appendChild(inp);
+            }
+            document.body.appendChild(form);
+            form.submit();
+        },
+        "modal": { "ondismiss": function() {
+            document.getElementById('errorBox').style.display = 'block';
+            document.getElementById('errorMessage').textContent = 'Payment cancelled.';
+        }},
+    };
+    var rzp = new Razorpay(options);
+    rzp.on('payment.failed', function(r) {
+        document.getElementById('errorBox').style.display = 'block';
+        document.getElementById('errorMessage').textContent = 'Failed: ' + r.error.description;
+    });
+    rzp.open();
+}
+{% else %}
+<!-- ✅ SIMULATION Mode submit -->
+document.getElementById('simForm').addEventListener('submit', function() {
+    document.getElementById('payButton').disabled = true;
+    document.getElementById('payButton').textContent = 'Processing...';
+    document.getElementById('loadingOverlay').style.display = 'flex';
 });
+{% endif %}
 </script>
+
+{% if is_live %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+{% endif %}
+
 {% endblock %}

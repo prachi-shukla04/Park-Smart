@@ -1,0 +1,91 @@
+{% extends 'home.html' %}
+{% block title %}Payment Failed{% endblock %}
+{% block content %}
+
+<style>
+.fail-container { max-width:500px; margin:40px auto; animation:fadeInUp 0.5s ease; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.fail-card {
+    background:#fff; padding:40px 32px; border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.12); text-align:center;
+}
+
+.fail-icon {
+    width:80px; height:80px; border-radius:50%;
+    background:linear-gradient(135deg, #ff416c, #ff4b2b);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 20px; font-size:36px;
+    box-shadow:0 8px 25px rgba(255,65,108,0.3);
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%,100% { transform:translateX(0); }
+    20%,60% { transform:translateX(-6px); }
+    40%,80% { transform:translateX(6px); }
+}
+
+.fail-title { font-size:22px; font-weight:700; color:#222; margin-bottom:8px; }
+.fail-subtitle { font-size:14px; color:#999; margin-bottom:28px; line-height:1.6; }
+
+.info-card {
+    background:#f8f9fa; border:1px solid #eee; padding:18px;
+    border-radius:14px; margin-bottom:24px; text-align:left;
+}
+.info-row { display:flex; justify-content:space-between; padding:6px 0; font-size:14px; }
+.info-row span:first-child { color:#888; }
+.info-row span:last-child { color:#333; font-weight:600; }
+
+.btn-retry {
+    background:linear-gradient(135deg, #667eea, #764ba2); color:#fff; border:none;
+    padding:14px 32px; border-radius:14px; font-size:16px; font-weight:700;
+    cursor:pointer; transition:all 0.3s; font-family:'Inter',sans-serif;
+    box-shadow:0 8px 25px rgba(102,126,234,0.3);
+    text-decoration:none; display:inline-block; margin-bottom:12px;
+}
+.btn-retry:hover { transform:translateY(-2px); box-shadow:0 12px 35px rgba(102,126,234,0.45); color:#fff; }
+
+.btn-back {
+    display:block; color:#999; text-decoration:none; font-size:14px;
+    transition:color 0.3s; margin-top:8px;
+}
+.btn-back:hover { color:#667eea; }
+
+.help-text {
+    background:#fff8e1; border:1px solid #ffe082; padding:14px;
+    border-radius:12px; font-size:13px; color:#795548;
+    line-height:1.5; margin-top:20px; text-align:left;
+}
+.help-text strong { color:#e65100; }
+</style>
+
+<div class="fail-container">
+<div class="fail-card">
+    <div class="fail-icon">✕</div>
+    <h2 class="fail-title">Payment Failed</h2>
+    <p class="fail-subtitle">
+        Don't worry — your money is safe.<br>
+        If any amount was deducted, it will be refunded within 5-7 business days.
+    </p>
+
+    <div class="info-card">
+        <div class="info-row"><span>Booking Code</span><span>{{ booking.booking_code }}</span></div>
+        <div class="info-row"><span>Parking</span><span>{{ booking.parking.parking_name }}</span></div>
+        <div class="info-row"><span>Amount</span><span>₹{{ booking.total_price }}</span></div>
+    </div>
+
+    <a href="{% url 'payment_qr' booking.id %}" class="btn-retry">🔄 Try Again</a>
+    <a href="{% url 'my_bookings' %}" class="btn-back">← Back to My Bookings</a>
+
+    <div class="help-text">
+        <strong>⚠️ Common reasons for failure:</strong><br>
+        • Insufficient balance in your account<br>
+        • Bank declined the transaction<br>
+        • Session expired — please try again<br>
+        • Network issue — check your internet connection
+    </div>
+</div>
+</div>
+
+{% endblock %}

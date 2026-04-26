@@ -108,14 +108,6 @@ button:hover{ transform:translateY(-2px); }
 
 <hr class="section-divider">
 
-<!-- QR -->
-<h3>💳 Payment QR</h3>
-{% if parking.qr_code_image %}
-<img src="{{ parking.qr_code_image.url }}" style="width:120px;border-radius:10px;margin-bottom:10px;">
-{% endif %}
-<input type="file" name="qr_code_image" id="qrInput">
-<div id="qrPreview"></div>
-
 <!-- SLOTS -->
 <h3>🚗 Vehicle Slots & Pricing</h3>
 <div class="grid-2">
@@ -153,21 +145,6 @@ document.getElementById("imageInput").addEventListener("change", function(){
             p.appendChild(img);
         };
         r.readAsDataURL(file);
-    }
-});
-
-// QR PREVIEW
-document.getElementById("qrInput").addEventListener("change", function(){
-    let p=document.getElementById("qrPreview"); p.innerHTML="";
-    if(this.files[0]){
-        let r=new FileReader();
-        r.onload=e=>{
-            let img=document.createElement("img");
-            img.src=e.target.result;
-            img.style="width:120px;border-radius:10px;";
-            p.appendChild(img);
-        };
-        r.readAsDataURL(this.files[0]);
     }
 });
 </script>

@@ -1,0 +1,36 @@
+{% extends 'home.html' %}
+{% block title %}Confirm Exit - {{ booking.booking_code }}{% endblock %}
+
+{% block content %}
+<style>
+    .wrapper { max-width: 600px; margin: 40px auto; text-align: center; background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .icon { font-size: 50px; margin-bottom: 20px; }
+    .info { font-size: 18px; margin-bottom: 10px; color: #334155; }
+    .slot { font-size: 24px; font-weight: 800; color: #1e293b; margin: 20px 0; background: #f1f5f9; padding: 10px; border-radius: 10px; }
+    
+    .confirm-btn {
+        display: inline-block; width: 100%; padding: 16px; margin-top: 20px;
+        background: linear-gradient(135deg, #43e97b, #38f9d7); color: #1a1a2e;
+        border: none; border-radius: 12px; font-size: 18px; font-weight: 700;
+        cursor: pointer; transition: 0.3s;
+    }
+    .confirm-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(67,233,123,0.3); }
+    .cancel-btn {
+        display: inline-block; margin-top: 15px; color: #64748b; text-decoration: none; font-size: 14px;
+    }
+</style>
+
+<div class="wrapper">
+    <div class="icon">🚗💨</div>
+    <h2>Confirm Vehicle Exit</h2>
+    <p class="info">User: <strong>{{ booking.user.username }}</strong></p>
+    <p class="info">Vehicle: <strong>{{ booking.vehicle_number }}</strong></p>
+    <div class="slot">🎯 Slot: {{ booking.assigned_slot|default:"—" }}</div>
+    
+    <form method="post" action="{% url 'mark_vehicle_exit' booking.id %}">
+        {% csrf_token %}
+        <button type="submit" class="confirm-btn">✅ Confirm Exit</button>
+    </form>
+    <a href="{% url 'provider_bookings' %}" class="cancel-btn">Cancel</a>
+</div>
+{% endblock %}

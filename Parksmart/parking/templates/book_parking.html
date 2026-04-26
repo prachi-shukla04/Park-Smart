@@ -68,6 +68,12 @@ input:focus { border-color:#667eea; background:#fff; box-shadow:0 0 0 3px rgba(1
     border-color:#667eea; background:#f0f2ff; color:#333;
 }
 .payment-timing input[type="radio"] { width:auto; margin-right:6px; accent-color:#667eea; }
+
+.free-tag {
+    display:block; margin-top:6px; padding:3px 8px; border-radius:6px;
+    background:linear-gradient(135deg, #43e97b, #38f9d7); color:#1a1a2e;
+    font-size:11px; font-weight:700;
+}
 </style>
 
 <div class="wrapper">
@@ -79,27 +85,37 @@ input:focus { border-color:#667eea; background:#fff; box-shadow:0 0 0 3px rgba(1
 <div class="vehicle-card {% if parking.available_bike_slots == 0 %}full{% endif %}" onclick="selectVehicle('Bike', {{ parking.available_bike_slots }})">
 <h3>🏍</h3><p>Bike</p><p>₹{{ parking.bike_price }}/hr</p>
 <span style="font-size:12px; opacity:0.6">{{ parking.available_bike_slots }} slots</span>
+{% if parking.bike_first_free_limit > 0 %}<span class="free-tag">🎁 First {{ parking.bike_first_free_limit }}hr free</span>{% endif %}
 </div>
 <div class="vehicle-card {% if parking.available_car_slots == 0 %}full{% endif %}" onclick="selectVehicle('Car', {{ parking.available_car_slots }})">
 <h3>🚗</h3><p>Car</p><p>₹{{ parking.car_price }}/hr</p>
 <span style="font-size:12px; opacity:0.6">{{ parking.available_car_slots }} slots</span>
+{% if parking.car_first_free_limit > 0 %}<span class="free-tag">🎁 First {{ parking.car_first_free_limit }}hr free</span>{% endif %}
 </div>
 <div class="vehicle-card {% if parking.available_suv_slots == 0 %}full{% endif %}" onclick="selectVehicle('SUV', {{ parking.available_suv_slots }})">
 <h3>🚙</h3><p>SUV</p><p>₹{{ parking.suv_price }}/hr</p>
 <span style="font-size:12px; opacity:0.6">{{ parking.available_suv_slots }} slots</span>
+{% if parking.suv_first_free_limit > 0 %}<span class="free-tag">🎁 First {{ parking.suv_first_free_limit }}hr free</span>{% endif %}
 </div>
 <div class="vehicle-card {% if parking.available_truck_slots == 0 %}full{% endif %}" onclick="selectVehicle('Truck', {{ parking.available_truck_slots }})">
 <h3>🚚</h3><p>Truck</p><p>₹{{ parking.truck_price }}/hr</p>
 <span style="font-size:12px; opacity:0.6">{{ parking.available_truck_slots }} slots</span>
+{% if parking.truck_first_free_limit > 0 %}<span class="free-tag">🎁 First {{ parking.truck_first_free_limit }}hr free</span>{% endif %}
 </div>
 </div>
 
 <input type="hidden" name="vehicle_type" id="vehicleType">
 <label>Vehicle Number</label>
 <input type="text" name="vehicle_number" placeholder="e.g. UP32 AB 1234" required>
-<label>Duration (hours)</label>
-<input type="number" name="hours" id="hours" min="1" value="1">
+
+<label>🕐 Start Time</label>
+<input type="datetime-local" name="start_time" id="startTime" required>
+
+<label>🕐 End Time</label>
+<input type="datetime-local" name="end_time" id="endTime" required>
+
 <p class="price" id="priceDisplay">Total: ₹0</p>
+<p class="free-info" id="freeInfo" style="display:none; color:#2ecc71; font-size:13px; font-weight:600; margin-top:-8px;"></p>
 
 <label style="margin-top:16px">💳 Payment Method</label>
 <div class="payment-timing">
@@ -114,6 +130,14 @@ input:focus { border-color:#667eea; background:#fff; box-shadow:0 0 0 3px rgba(1
 <script>
 let selectedVehicle = null;
 const pricing = { Bike:{{ parking.bike_price }}, Car:{{ parking.car_price }}, SUV:{{ parking.suv_price }}, Truck:{{ parking.truck_price }} };
+const freeHours = { Bike:{{ parking.bike_first_free_limit }}, Car:{{ parking.car_first_free_limit }}, SUV:{{ parking.suv_first_free_limit }}, Truck:{{ parking.truck_first_free_limit }} };
+
+// Set min datetime to now
+const now = new Date();
+now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+const minDT = now.toISOString().slice(0,16);
+document.getElementById("startTime").min = minDT;
+document.getElementById("endTime").min = minDT;
 
 function selectVehicle(type, slots){
     if(slots <= 0){ alert("No slots available ❌"); return; }
@@ -123,15 +147,54 @@ function selectVehicle(type, slots){
     event.currentTarget.classList.add("active");
     updatePrice();
 }
-document.getElementById("hours").addEventListener("input", updatePrice);
+
 function updatePrice(){
-    let hours = document.getElementById("hours").value;
-    if(selectedVehicle && hours){
-        document.getElementById("priceDisplay").innerText = "Total: ₹" + (pricing[selectedVehicle] * hours);
+    const start = document.getElementById("startTime").value;
+    const end = document.getElementById("endTime").value;
+    const freeInfoEl = document.getElementById("freeInfo");
+
+    if(selectedVehicle && start && end){
+        const diffMs = new Date(end) - new Date(start);
+        const totalHours = Math.max(1, Math.ceil(diffMs / (1000*60*60)));
+
+        if(totalHours > 0){
+            const free = freeHours[selectedVehicle] || 0;
+            const billable = Math.max(0, totalHours - free);
+            const total = pricing[selectedVehicle] * billable;
+
+            if(free > 0 && billable < totalHours){
+                const freeApplied = Math.min(free, totalHours);
+                freeInfoEl.style.display = "block";
+                if(billable === 0){
+                    document.getElementById("priceDisplay").innerText = "Total: ₹0 — FREE! 🎉";
+                    freeInfoEl.innerText = "🎁 All " + totalHours + " hour(s) are within the free limit!";
+                } else {
+                    document.getElementById("priceDisplay").innerText = "Total: ₹" + total + " (" + billable + " paid hrs)";
+                    freeInfoEl.innerText = "🎁 First " + freeApplied + " hour(s) FREE! You pay for " + billable + " hour(s) only.";
+                }
+            } else {
+                freeInfoEl.style.display = "none";
+                document.getElementById("priceDisplay").innerText = "Total: ₹" + total + " (" + totalHours + " hrs)";
+            }
+        } else {
+            freeInfoEl.style.display = "none";
+            document.getElementById("priceDisplay").innerText = "⚠️ End time must be after start";
+        }
     }
 }
+
+document.getElementById("startTime").addEventListener("input", function(){
+    if(this.value) document.getElementById("endTime").min = this.value;
+    updatePrice();
+});
+document.getElementById("endTime").addEventListener("input", updatePrice);
+
 document.querySelector("form").addEventListener("submit", function(e){
-    if(!selectedVehicle){ e.preventDefault(); alert("Please select a vehicle type 🚗"); }
+    if(!selectedVehicle){ e.preventDefault(); alert("Please select a vehicle type 🚗"); return; }
+    const start = document.getElementById("startTime").value;
+    const end = document.getElementById("endTime").value;
+    if(!start || !end){ e.preventDefault(); alert("Please select start and end time ⏰"); return; }
+    if(new Date(end) <= new Date(start)){ e.preventDefault(); alert("End time must be after start time ⚠️"); }
 });
 </script>
 {% endblock %}

@@ -16,6 +16,26 @@
 }
 .nav-btn:hover { background:#f5f5f5; transform:translateY(-1px); }
 
+/* TABS */
+.tabs { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+.tab {
+    padding:10px 22px; border-radius:12px; background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);
+    cursor:pointer; font-size:14px; font-weight:600; transition:all 0.3s;
+    border:1px solid rgba(255,255,255,0.1);
+}
+.tab:hover { color:#fff; background:rgba(255,255,255,0.12); }
+.tab.active {
+    background:linear-gradient(135deg, #667eea, #764ba2); color:white;
+    box-shadow:0 4px 15px rgba(102,126,234,0.3); border-color:transparent;
+}
+.tab .count {
+    background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:8px;
+    font-size:12px; margin-left:6px;
+}
+.tab.overstay-tab.active { background:linear-gradient(135deg, #ff416c, #ff4b2b); }
+
+.section { display:none; } .section.active { display:block; }
+
 .table-box{
     background:#fff; padding:0; border-radius:16px; overflow:hidden;
     box-shadow:0 4px 20px rgba(0,0,0,0.08);
@@ -33,27 +53,143 @@ tr:last-child td { border-bottom:none; }
 .date{ font-size:12px; color:#999; }
 .empty{ text-align:center; padding:40px; font-size:16px; color:#bbb; }
 
+.status-badge { padding:4px 12px; border-radius:8px; font-size:12px; font-weight:700; }
+.status-badge.active { background:#e8f5e9; color:#2e7d32; }
+.status-badge.overstay { background:#fce4ec; color:#c62828; animation: pulse 1.5s infinite; }
+.status-badge.completed { background:#e3f2fd; color:#1565c0; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
+.exit-btn {
+    padding:8px 18px; background:linear-gradient(135deg, #43e97b, #38f9d7); color:#1a1a2e;
+    border:none; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer;
+    transition:all 0.3s; font-family:'Inter',sans-serif;
+}
+.exit-btn:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(67,233,123,0.3); }
+.exit-btn.danger {
+    background:linear-gradient(135deg, #ff416c, #ff4b2b); color:white;
+}
+
+.penalty { color:#e74c3c; font-weight:700; }
+
 @media(max-width:768px) { .table-box{overflow-x:auto} th,td{padding:10px 12px;font-size:13px} }
 </style>
 
 <div class="wrapper">
-    <h2 class="page-title">📋 Booking Records</h2>
+    <h2 class="page-title">📋 Booking Management</h2>
     <div class="top-bar">
         <a href="{% url 'parking_provider' %}" class="nav-btn">← Dashboard</a>
         <a href="{% url 'provider_earnings' %}" class="nav-btn">💰 Earnings</a>
     </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('active')">🟢 Active <span class="count">{{ active_bookings|length }}</span></div>
+        <div class="tab overstay-tab" onclick="showTab('overstaying')">⚠️ Overstaying <span class="count">{{ overstaying_bookings|length }}</span></div>
+        <div class="tab" onclick="showTab('completed')">✅ Completed <span class="count">{{ completed_bookings|length }}</span></div>
+    </div>
+
+    <!-- ACTIVE BOOKINGS -->
+    <div id="active" class="section active">
     <div class="table-box">
         <table>
-            <tr><th>🎫 Code</th><th>👤 User</th><th>🚗 Parking</th><th>⏱ Hours</th><th>💰 Price</th><th>📅 Date</th></tr>
-            {% for b in bookings %}
+            <tr><th>🎫 Code</th><th>🎯 Slot</th><th>👤 User</th><th>🚗 Vehicle</th><th>🕐 Time Slot</th><th>💰 Price</th><th>💳 Payment</th><th>Status</th><th>Action</th></tr>
+            {% for b in active_bookings %}
             <tr>
                 <td><span class="booking-code">{{ b.booking_code }}</span></td>
-                <td>{{ b.user.username }}</td><td>{{ b.parking.parking_name }}</td>
-                <td>{{ b.hours }}</td><td class="price">₹{{ b.total_price }}</td>
-                <td class="date">{{ b.booking_time }}</td>
+                <td><span style="font-weight:700; color:#4a5568;">{{ b.assigned_slot|default:"—" }}</span></td>
+                <td>{{ b.user.username }}</td>
+                <td>{{ b.vehicle_type }} — {{ b.vehicle_number }}</td>
+                <td class="date">{{ b.start_time|date:"d/m h:iA" }} → {{ b.end_time|date:"h:iA" }}</td>
+                <td class="price">₹{{ b.total_price }}</td>
+                <td>
+                    {% if b.total_price == 0 %}
+                        <span class="status-badge" style="background:#e8f5e9;color:#2e7d32;">🎁 FREE</span>
+                    {% elif b.payment.status == 'completed' %}
+                        <span class="status-badge" style="background:#e8f5e9;color:#2e7d32;">✅ Paid</span>
+                        <br><span style="font-size:10px;color:#999;">{{ b.payment.razorpay_payment_id|truncatechars:20 }}</span>
+                    {% elif b.payment.status == 'refunded' %}
+                        <span class="status-badge" style="background:#fff3cd;color:#856404;">💰 Refunded</span>
+                    {% else %}
+                        <span class="status-badge" style="background:#fce4ec;color:#c62828;">⏳ Unpaid</span>
+                    {% endif %}
+                </td>
+                <td><span class="status-badge active">{{ b.status|title }}</span></td>
+                <td>
+                    <form method="post" action="{% url 'mark_vehicle_exit' b.id %}">
+                        {% csrf_token %}
+                        <button class="exit-btn">✅ Mark Exit</button>
+                    </form>
+                </td>
             </tr>
-            {% empty %}<tr><td colspan="6" class="empty">No bookings yet 🚫</td></tr>{% endfor %}
+            {% empty %}<tr><td colspan="9" class="empty">No active bookings 🚫</td></tr>{% endfor %}
         </table>
     </div>
+    </div>
+
+    <!-- OVERSTAYING BOOKINGS -->
+    <div id="overstaying" class="section">
+    <div class="table-box">
+        <table>
+            <tr><th>🎫 Code</th><th>🎯 Slot</th><th>👤 User</th><th>🚗 Vehicle</th><th>🕐 Was Due</th><th>💰 Price</th><th>Status</th><th>Action</th></tr>
+            {% for b in overstaying_bookings %}
+            <tr>
+                <td><span class="booking-code">{{ b.booking_code }}</span></td>
+                <td><span style="font-weight:700; color:#4a5568;">{{ b.assigned_slot|default:"—" }}</span></td>
+                <td>{{ b.user.username }}</td>
+                <td>{{ b.vehicle_type }} — {{ b.vehicle_number }}</td>
+                <td class="date" style="color:#e74c3c; font-weight:600;">Due: {{ b.end_time|date:"d/m h:iA" }}</td>
+                <td class="price">₹{{ b.total_price }}</td>
+                <td><span class="status-badge overstay">⚠️ Overstaying</span></td>
+                <td>
+                    <form method="post" action="{% url 'mark_vehicle_exit' b.id %}">
+                        {% csrf_token %}
+                        <button class="exit-btn danger">🚨 Mark Exit + Penalty</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}<tr><td colspan="8" class="empty">No overstaying vehicles ✅</td></tr>{% endfor %}
+        </table>
+    </div>
+    </div>
+
+    <!-- COMPLETED BOOKINGS -->
+    <div id="completed" class="section">
+    <div class="table-box">
+        <table>
+            <tr><th>🎫 Code</th><th>🎯 Slot</th><th>👤 User</th><th>🚗 Vehicle</th><th>🕐 Exited At</th><th>💰 Price</th><th>💳 Payment</th><th>⚠️ Penalty</th></tr>
+            {% for b in completed_bookings %}
+            <tr>
+                <td><span class="booking-code">{{ b.booking_code }}</span></td>
+                <td><span style="font-weight:700; color:#4a5568;">{{ b.assigned_slot|default:"—" }}</span></td>
+                <td>{{ b.user.username }}</td>
+                <td>{{ b.vehicle_type }} — {{ b.vehicle_number }}</td>
+                <td class="date">{{ b.actual_exit_time|date:"d/m h:iA"|default:"—" }}</td>
+                <td class="price">₹{{ b.total_price }}</td>
+                <td>
+                    {% if b.total_price == 0 %}
+                        <span class="status-badge" style="background:#e8f5e9;color:#2e7d32;">🎁 FREE</span>
+                    {% elif b.payment.status == 'completed' %}
+                        <span class="status-badge" style="background:#e8f5e9;color:#2e7d32;">✅ Paid</span>
+                    {% elif b.payment.status == 'refunded' %}
+                        <span class="status-badge" style="background:#fff3cd;color:#856404;">💰 Refunded</span>
+                    {% else %}
+                        <span class="status-badge" style="background:#fce4ec;color:#c62828;">⏳ Unpaid</span>
+                    {% endif %}
+                </td>
+                <td>{% if b.overstay_penalty > 0 %}<span class="penalty">₹{{ b.overstay_penalty|floatformat:0 }}</span>{% else %}—{% endif %}</td>
+            </tr>
+            {% empty %}<tr><td colspan="8" class="empty">No completed bookings yet</td></tr>{% endfor %}
+        </table>
+    </div>
+    </div>
 </div>
+
+<script>
+function showTab(tab){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.querySelector(`[onclick="showTab('${tab}')"]`).classList.add('active');
+    document.getElementById(tab).classList.add('active');
+}
+</script>
 {% endblock %}

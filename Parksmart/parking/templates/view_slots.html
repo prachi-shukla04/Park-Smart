@@ -387,6 +387,9 @@
     <div class="top-nav">
         <a href="{% url 'user_dashboard' %}" class="back-link">← Back to Dashboard</a>
         <div class="parking-title">{{ parking.parking_name }}</div>
+        {% if parking.average_rating > 0 %}
+            <div style="color:#f59e0b; font-weight:700; font-size:16px; margin-bottom:10px;">⭐ {{ parking.average_rating|floatformat:1 }} / 5.0 Average Rating</div>
+        {% endif %}
     </div>
 
     <!-- MAP SECTION -->
